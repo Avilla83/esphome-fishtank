@@ -1,0 +1,16 @@
+binary_sensor:
+  - platform: gpio
+    id: green_button
+    pin: 18
+
+  - platform: gpio
+    id: blue_button
+    pin: 19
+
+  - platform: gpio
+    id: white_button
+    pin: 22
+
+  - platform: gpio
+    id: red_button
+    pin: 23

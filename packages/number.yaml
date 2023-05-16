@@ -1,0 +1,145 @@
+
+number:
+  - platform: template
+    name: "Lights Timer - Slot 1 Start - Hour"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[0] = (int)(x);
+    
+  - platform: template
+    name: "Lights Timer - Slot 1 Start - Minute"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[0] = (int)(x);
+    
+  - platform: template
+    name: "Lights Timer - Slot 2 Start - Hour"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[1] = (int)(x);
+    
+  - platform: template
+    name: "Lights Timer - Slot 2 Start - Minute"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[1] = (int)(x);
+
+  - platform: template
+    name: "Lights Timer - Slot 3 Start - Hour"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[2] = (int)(x);
+    
+  - platform: template
+    name: "Lights Timer - Slot 3 Start - Minute"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[2] = (int)(x);
+
+  - platform: template
+    name: "Lights Timer - Slot 3 End - Hour"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[3] = (int)(x);
+    
+  - platform: template
+    name: "Lights Timer - Slot 3 End - Minute"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[3] = (int)(x);
+
+  - platform: template
+    name: "Lights Timer - Value Slot 0"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value)[0] = (int)(x);
+
+  - platform: template
+    name: "Lights Timer - Value Slot 1"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value)[1] = (int)(x);
+
+  - platform: template
+    name: "Lights Timer - Value Slot 2"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value)[2] = (int)(x);
+
+  - platform: template
+    name: "Lights Timer - Value Slot 3"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value)[3] = (int)(x);

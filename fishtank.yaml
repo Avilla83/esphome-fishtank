@@ -1,0 +1,76 @@
+esphome:
+  name: fishtank
+
+esp32:
+  board: esp-wrover-kit
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "19081908"
+
+ota:
+  password: "19081908"
+
+captive_portal:
+
+web_server:
+  port: 80
+
+dallas:
+  - pin: GPIO23
+
+# Individual sensors
+#sensor:
+#  - platform: dallas
+#    address: 0x1C0000031EDD2A28
+#    name: "Living Room Temperature"
+
+light:
+  - platform: monochromatic
+    name: "Fishtank Lights"
+    id: lights
+    output: ledc_pwm
+    on_turn_on:
+      - switch.turn_on: switch_lights
+    on_turn_off:
+      - switch.turn_off: switch_lights
+
+servo:
+  - id: fish_feeder
+    output: fish_feeder_pwm
+
+output:
+  - platform: ledc
+    id: ledc_pwm
+    pin: GPIO19
+
+  - platform: ledc
+    id: fish_feeder_pwm
+    pin: GPIO20
+    frequency: 50 Hz
+
+globals:
+   # you will need globals for any other alarm times
+   - id: lights_timer_slot_hour
+     type: int[4]
+     restore_value: true
+     
+   - id: lights_timer_slot_minute
+     type: int[4]
+     restore_value: true
+     
+   - id: lights_timer_slot_value
+     type: int[4]
+     restore_value: true
+
+packages:
+  wifi: !include packages/wifi.yaml
+  number: !include packages/number.yaml
+  time: !include packages/time.yaml
+  binary_sensor: !include packages/binary_sensor.yaml
+  switch: !include packages/switch.yaml

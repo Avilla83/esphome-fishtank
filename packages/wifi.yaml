@@ -1,0 +1,17 @@
+wifi:
+  ssid: "Home Wi-Fi"
+  password: "Antalope_2013!"
+  manual_ip:
+    # Set this to the IP of the ESP
+    static_ip: 192.168.1.20
+    # Set this to the IP address of the router. Often ends with .1
+    gateway: 192.168.1.1
+    # The subnet of the network. 255.255.255.0 works for most home networks.
+    subnet: 255.255.255.0
+    dns1: 8.8.8.8
+    dns2: 4.4.4.4
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Fishtank Fallback Hotspot"
+    password: "bxE6TUHgWdWm"

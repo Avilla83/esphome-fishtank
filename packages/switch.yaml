@@ -1,0 +1,26 @@
+switch:
+  - platform: gpio
+    name: "Water Pump"
+    id: switch_pump
+    pin: 14
+    icon: "mdi:water-pump"
+    
+  - platform: gpio
+    name: "Lights"
+    id: switch_lights
+    pin: 13
+    icon: "mdi:lightbulb-outline"
+
+  - platform: template
+    name: "Lights auto-manual"
+    id: switch_lights_auto
+    icon: "mdi:lightbulb-outline"
+    optimistic: true
+    restore_state: true
+
+  - platform: template
+    name: "Lights home-away"
+    id: switch_lights_away
+    icon: "mdi:lightbulb-outline"
+    optimistic: true
+    restore_state: true
