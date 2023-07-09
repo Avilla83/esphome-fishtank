@@ -1,0 +1,54 @@
+button:
+  - platform: restart
+    name: "Reset"
+    id: fishtank_restart
+
+  - platform: template
+    name: "Feeder caduta cibo"
+    id: fish_feeder_trigger
+    on_press:
+      then:
+        # Move 150 steps forward
+        - lambda: |-
+            auto call = id(feeder_slider).make_call();
+            call.set_value((float)(id(feeder_slider).state + 1));
+            call.perform();
+            //id(fishfeeder_position) = id(fishfeeder_position) + 1;
+            //id(fish_feeder_stepper).set_target(-75*(int32_t)(id(fishfeeder_position).state));
+
+  - platform: template
+    name: "Feeder fine tune"
+    id: fish_feeder_finetune
+    on_press:
+      then:
+        # Move 150 steps forward
+        - lambda: |-            
+            id(fish_feeder_stepper).set_target((id(fish_feeder_stepper).target_position)-12);
+
+  - platform: template
+    name: "Feeder reset"
+    id: fish_feeder_reset
+    on_press:
+      then:
+        # Move 150 steps forward
+        - lambda: |-
+            id(fish_feeder_stepper).report_position(0);
+            
+            auto call = id(feeder_slider).make_call();
+            call.number_to_min();
+            call.perform();
+
+  - platform: template
+    name: "Luci Interruttore"
+    id: button_lights_trigger
+    on_press:
+      then:
+        - switch.turn_off: switch_lights_auto
+        - light.toggle: lights
+
+  - platform: template
+    name: "Pompa Interruttore"
+    id: button_pump_trigger
+    on_press:
+      then:
+        - switch.toggle: switch_pump

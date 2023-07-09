@@ -9,51 +9,91 @@ time:
         then:
         #- switch.toggle: switch_lights
         - lambda: |-
-            std::time_t currentTime = id(sntptime).now().timestamp;
-            std::tm *currentTime_local = localtime(&currentTime);
-            int currentHour = currentTime_local->tm_hour;
-            int currentMinute = currentTime_local->tm_min;
-            int currentMinutesInDay = currentHour*60 + currentMinute;
-
-            int currentSlot = 0;
-            for (int i = 0; i < 3; i++)
+            if (id(sntptime).now().is_valid())
             {
-                if ((currentMinutesInDay >= (id(lights_timer_slot_hour)[i]*60 + id(lights_timer_slot_minute)[i])) &&
-                    (currentMinutesInDay < (id(lights_timer_slot_hour)[i + 1]*60 + id(lights_timer_slot_minute)[i + 1])))
+              std::time_t currentTime = id(sntptime).now().timestamp;
+              std::tm *currentTime_local = localtime(&currentTime);
+              int currentHour = currentTime_local->tm_hour;
+              int currentMinute = currentTime_local->tm_min;
+              int currentMinutesInDay = currentHour*60 + currentMinute;
+              int currentDayOfWeek = currentTime_local->tm_wday;
+
+              int currentSlot = 0;
+              int current_slot_value = 0;
+              for (int i = 0; i < 3; i++)
+              {
+                  if ((currentMinutesInDay >= (id(lights_timer_slot_hour)[i]*60 + id(lights_timer_slot_minute)[i])) &&
+                      (currentMinutesInDay < (id(lights_timer_slot_hour)[i + 1]*60 + id(lights_timer_slot_minute)[i + 1])))
+                  {
+                    currentSlot = i + 1;
+
+                    if (true == id(switch_lights_home).state)
+                    {
+                      current_slot_value = id(lights_timer_slot_value_home)[currentSlot];
+                    }
+                    else
+                    {
+                      current_slot_value = id(lights_timer_slot_value_away)[currentSlot];
+                    }
+
+                    break;
+                  }
+              }
+
+              if (true == id(switch_lights_auto).state)
+              {
+                if ((current_slot_value > 0) &&
+                    (0 == id(lights).current_values.is_on()))
                 {
-                  currentSlot = i + 1;
-                  break;
+                  id(lights).turn_on().perform();
+                  ESP_LOGD("timer", "Turning lights on");
                 }
+
+                float brightness = (float)current_slot_value/100;
+
+                if ((brightness != id(lights).remote_values.get_brightness()) &&
+                    (1 == id(lights).current_values.is_on()))
+                {
+                  auto lightsCall = id(lights).make_call();
+                  lightsCall.set_brightness(brightness);
+                  //lightsCall.set_white(brightness);
+                  lightsCall.perform();
+
+                  ESP_LOGD("timer", "Is on %d, set brightness %f, previous white value %f", id(lights).current_values.is_on(), brightness, id(lights).remote_values.get_brightness());
+                  //id(lights).current_values_as_brightness(&brightness);
+                  //id(lights).publish_state();
+                }
+
+                if ((current_slot_value == 0) &&
+                    (1 == id(lights).current_values.is_on()))
+                {
+                  id(lights).turn_off().perform();
+                  ESP_LOGD("timer", "Turning lights off");
+                }
+              }
+              else
+              {
+                ESP_LOGD("timer", "Manual mode %d", id(switch_lights_auto).state);
+              }
+
+              ESP_LOGD("timer", "Current time: %d:%d value %d", currentHour, currentMinute, current_slot_value);
+              //ESP_LOGD("timer", "Slot 0 %d:%d h %d a %d, Slot 1 %d:%d h %d a %d, Slot 2 %d:%d h %d a %d, Slot 3 %d:%d h %d a %d", 
+              //id(lights_timer_slot_hour)[3], id(lights_timer_slot_minute)[3], id(lights_timer_slot_value_home)[0], id(lights_timer_slot_value_away)[0],
+              //id(lights_timer_slot_hour)[0], id(lights_timer_slot_minute)[0], id(lights_timer_slot_value_home)[1], id(lights_timer_slot_value_away)[1],
+              //id(lights_timer_slot_hour)[1], id(lights_timer_slot_minute)[1], id(lights_timer_slot_value_home)[2], id(lights_timer_slot_value_away)[2],
+              //id(lights_timer_slot_hour)[2], id(lights_timer_slot_minute)[2], id(lights_timer_slot_value_home)[3], id(lights_timer_slot_value_away)[3]);
+
+              // Feeder timer loop
+              for (int i = 0; i < 2; i++)
+              {
+                if ((id(fishfeeder_timer_check)[0] != currentDayOfWeek) &&
+                    (id(fishfeeder_timer_check)[1] != i) &&
+                    (currentMinutesInDay > (id(fishfeeder_timer_slot_hour)[i]*60 + id(fishfeeder_timer_slot_minute)[i])))
+                {
+                  ESP_LOGD("timer", "Feed time %d:%d", currentHour, currentMinute);
+                  id(fish_feeder_trigger).press();
+                  id(fishfeeder_timer_check)[0] = currentDayOfWeek;
+                  id(fishfeeder_timer_check)[1] = i;
+                }
+              }
             }
-
-            if ((id(lights_timer_slot_value)[currentSlot] > 0) &&
-                (false == id(lights).current_values.is_on()))
-            {
-              id(lights).turn_on();
-            }
-
-            if ((id(lights_timer_slot_value)[currentSlot] == 0) &&
-                (true == id(lights).current_values.is_on()))
-            {
-                id(lights).turn_off();
-            }
-
-            id(lights).current_values.set_brightness(id(lights_timer_slot_value)[currentSlot]/100);
-
-            ESP_LOGD("main", "Current time: %d:%d zone %d", currentHour, currentMinute, currentSlot);
-            ESP_LOGD("main", "Slot 0 %d:%d %d", id(lights_timer_slot_hour)[3], id(lights_timer_slot_minute)[3], id(lights_timer_slot_value)[0]);
-            ESP_LOGD("main", "Slot 1 %d:%d %d", id(lights_timer_slot_hour)[0], id(lights_timer_slot_minute)[0], id(lights_timer_slot_value)[1]);
-            ESP_LOGD("main", "Slot 2 %d:%d %d", id(lights_timer_slot_hour)[1], id(lights_timer_slot_minute)[1], id(lights_timer_slot_value)[2]);
-            ESP_LOGD("main", "Slot 3 %d:%d %d", id(lights_timer_slot_hour)[2], id(lights_timer_slot_minute)[2], id(lights_timer_slot_value)[3]);
-            
-        #    char displaytz1[6];
-        #    std::time_t tz1time = id(sntptime).now().timestamp+(60*60*id(tz_hr)+60*id(tz_min));
-        #    std::tm *tz1time_astm = localtime(&tz1time);
-        #    int tzhr = tz1time_astm->tm_hour;
-        #    int tzmin = tz1time_astm->tm_min;
-        #    ESP_LOGD("main", "Hour: %d", tzhr);
-        #    ESP_LOGD("main", "Minute: %d", tzmin);
-        #    if (id(daytime_hr) == tzhr && id(daytime_min) == tzmin) {
-        #      ESP_LOGD("main", "Here I would have turned on output pin");
-        #    };
-        #ESP_LOGD("main", "Current minutes: %d zone %d minutes %d, zone %d minutes %d", currentMinutesInDay, i, (id(lights_timer_slot_minute)[i]*60 + id(lights_timer_slot_minute)[i]), i+1, (id(lights_timer_slot_hour)[i + 1]*60 + id(lights_timer_slot_minute)[i + 1]));

@@ -1,16 +1,85 @@
 binary_sensor:
   - platform: gpio
     id: green_button
-    pin: 18
+    name: "Bottone Verde"
+    pin: 
+      number: GPIO18
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      then:
+        - button.press: fish_feeder_trigger
 
   - platform: gpio
     id: blue_button
-    pin: 19
+    name: "Bottone Blu"
+    pin:
+      number: GPIO19
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      - min_length: 50ms
+        max_length: 350ms
+        then:
+          - button.press: button_pump_trigger
 
   - platform: gpio
     id: white_button
-    pin: 22
+    name: "Bottone Bianco"
+    pin:
+      number: GPIO22
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      - min_length: 50ms
+        max_length: 350ms
+        then:
+          - button.press: button_lights_trigger
+      - min_length: 500ms
+        max_length: 1000ms
+        then:
+          - switch.turn_on: switch_lights_auto
 
   - platform: gpio
     id: red_button
-    pin: 23
+    name: "Bottone Rosso"
+    pin:
+      number: GPIO23
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      - min_length: 50ms
+        max_length: 350ms
+        then:
+          - button.press: fishtank_restart
+
+  - platform: gpio
+    id: light_sensor
+    name: "Sensore di luminosità"
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 1000ms
+      - delayed_off: 1000ms
+    on_state:
+      if:
+        condition:
+          binary_sensor.is_on: light_sensor
+        then:
+          - switch.turn_on: switch_lights_home
+        else:
+          - switch.turn_off: switch_lights_home
