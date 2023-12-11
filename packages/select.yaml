@@ -1,0 +1,17 @@
+select:
+  - platform: template
+    name: "Fish Feeder giorno digiuno"
+    id: fish_feeder_no_food
+    optimistic: true
+    options:
+      - Domenica
+      - Lunedì
+      - Martedì
+      - Mercoledì
+      - Giovedì
+      - Venerdì
+      - Sabato
+      - Nessuno
+    restore_value: true
+    initial_option: Sabato
+

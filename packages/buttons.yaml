@@ -8,35 +8,124 @@ button:
     id: fish_feeder_trigger
     on_press:
       then:
-        # Move 150 steps forward
-        - lambda: |-
-            auto call = id(feeder_slider).make_call();
-            call.set_value((float)(id(feeder_slider).state + 1));
-            call.perform();
-            //id(fishfeeder_position) = id(fishfeeder_position) + 1;
-            //id(fish_feeder_stepper).set_target(-75*(int32_t)(id(fishfeeder_position).state));
+        - number.increment:
+            id: feeder_slider
+            cycle: false
 
   - platform: template
-    name: "Feeder fine tune"
-    id: fish_feeder_finetune
+    name: "Feeder fine tune right"
+    id: fish_feeder_finetune_right
     on_press:
       then:
-        # Move 150 steps forward
-        - lambda: |-            
-            id(fish_feeder_stepper).set_target((id(fish_feeder_stepper).target_position)-12);
+        - number.to_min:
+            id: feeder_slider
+
+        - lambda: |-
+            id(fish_feeder_stepper).report_position(0);          
+            id(fish_feeder_stepper).set_target(-4);
+            id(fish_feeder_stepper).report_position(0);
+  
+  - platform: template
+    name: "Feeder fine tune left"
+    id: fish_feeder_finetune_left
+    on_press:
+      then:
+        - number.to_min:
+            id: feeder_slider
+
+        - lambda: |-
+            id(fish_feeder_stepper).report_position(0);          
+            id(fish_feeder_stepper).set_target(+4);
+            id(fish_feeder_stepper).report_position(0);
 
   - platform: template
     name: "Feeder reset"
     id: fish_feeder_reset
     on_press:
       then:
-        # Move 150 steps forward
-        - lambda: |-
-            id(fish_feeder_stepper).report_position(0);
-            
+        - lambda: |-            
             auto call = id(feeder_slider).make_call();
             call.number_to_min();
             call.perform();
+
+            id(fish_feeder_stepper).report_position(0);
+
+            ESP_LOGD("feeder_reset", "Populating feeder calendar");
+            
+            std::time_t currentTime = id(sntptime).now().timestamp;
+            std::tm *feedtime = localtime(&currentTime);
+
+            // Day 0 is done before the loop to check current time
+            // Skip today if current time is already after the last feeding time
+            if (feedtime->tm_hour >= id(fishfeeder_timer_slot_hour)[1])
+            {
+              feedtime->tm_mday++;
+            }
+            else if (feedtime->tm_hour >= id(fishfeeder_timer_slot_hour)[0])
+            {
+              id(fishfeeder_timer_check)[0][0][1] = 1;
+            }
+            else
+            {
+              id(fishfeeder_timer_check)[0][0][1] = 0;
+            }
+
+            feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[0];
+            feedtime->tm_min = id(fishfeeder_timer_slot_minute)[0];
+            id(fishfeeder_timer_check)[0][0][0] = mktime(feedtime);
+
+            //ESP_LOGD("feeder_reset", "Entering feeder loop Feed time 0 %d/%d %d:%d", feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+            feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[1];
+            feedtime->tm_min = id(fishfeeder_timer_slot_minute)[1];
+            id(fishfeeder_timer_check)[0][1][0] = mktime(feedtime);
+            id(fishfeeder_timer_check)[0][1][1] = 0;
+
+            //ESP_LOGD("feeder_reset", "Entering feeder loop Feed time 1 %d/%d %d:%d", feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+            feedtime->tm_mday++;
+
+            // Fill from day 1 to the end
+            for (int day = 1; day < 31; day++)
+            {
+              if (feedtime->tm_wday == id(fish_feeder_no_food).index_of(id(fish_feeder_no_food).state))
+              {
+                feedtime->tm_mday++;
+                //ESP_LOGD("feeder_reset", "Skipping day weekday %d", feedtime->tm_wday);
+              }
+
+              feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[0];
+              feedtime->tm_min = id(fishfeeder_timer_slot_minute)[0];
+
+              id(fishfeeder_timer_check)[day][0][0] = mktime(feedtime);
+              id(fishfeeder_timer_check)[day][0][1] = 0;
+
+              //ESP_LOGD("feeder_reset", "Entering feeder loop day %d Feed time 0 %d/%d %d:%d", day, feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+              feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[1];
+              feedtime->tm_min = id(fishfeeder_timer_slot_minute)[1];
+
+              id(fishfeeder_timer_check)[day][1][0] = mktime(feedtime);
+              id(fishfeeder_timer_check)[day][1][1] = 0;
+
+              //ESP_LOGD("feeder_reset", "Entering feeder loop day %d Feed time 1 %d/%d %d:%d", day, feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+              feedtime->tm_mday++;
+            }
+
+            /*ESP_LOGD("feeder_reset", "Entering feeder loop Feed day 0 %d/%d %d/%d, 1 %d/%d %d/%d, 2 %d/%d %d/%d, 3 %d/%d %d/%d, 4 %d/%d %d/%d, 5 %d/%d %d/%d, 6 %d/%d %d/%d, 7 %d/%d %d/%d, 8 %d/%d %d/%d, 9 %d/%d %d/%d", 
+              id(fishfeeder_timer_check)[0][0][0],id(fishfeeder_timer_check)[0][0][1],id(fishfeeder_timer_check)[0][1][0],id(fishfeeder_timer_check)[0][1][1],
+              id(fishfeeder_timer_check)[1][0][0],id(fishfeeder_timer_check)[1][0][1],id(fishfeeder_timer_check)[1][1][0],id(fishfeeder_timer_check)[1][1][1],
+              id(fishfeeder_timer_check)[2][0][0],id(fishfeeder_timer_check)[2][0][1],id(fishfeeder_timer_check)[2][1][0],id(fishfeeder_timer_check)[2][1][1],
+              id(fishfeeder_timer_check)[3][0][0],id(fishfeeder_timer_check)[3][0][1],id(fishfeeder_timer_check)[3][1][0],id(fishfeeder_timer_check)[3][1][1],
+              id(fishfeeder_timer_check)[4][0][0],id(fishfeeder_timer_check)[4][0][1],id(fishfeeder_timer_check)[4][1][0],id(fishfeeder_timer_check)[4][1][1],
+              id(fishfeeder_timer_check)[5][0][0],id(fishfeeder_timer_check)[5][0][1],id(fishfeeder_timer_check)[5][1][0],id(fishfeeder_timer_check)[5][1][1],
+              id(fishfeeder_timer_check)[6][0][0],id(fishfeeder_timer_check)[6][0][1],id(fishfeeder_timer_check)[6][1][0],id(fishfeeder_timer_check)[6][1][1],
+              id(fishfeeder_timer_check)[7][0][0],id(fishfeeder_timer_check)[7][0][1],id(fishfeeder_timer_check)[7][1][0],id(fishfeeder_timer_check)[7][1][1],
+              id(fishfeeder_timer_check)[8][0][0],id(fishfeeder_timer_check)[8][0][1],id(fishfeeder_timer_check)[8][1][0],id(fishfeeder_timer_check)[8][1][1],
+              id(fishfeeder_timer_check)[9][0][0],id(fishfeeder_timer_check)[9][0][1],id(fishfeeder_timer_check)[9][1][0],id(fishfeeder_timer_check)[9][1][1]);
+            */
+
 
   - platform: template
     name: "Luci Interruttore"

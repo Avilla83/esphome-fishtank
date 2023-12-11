@@ -20,7 +20,6 @@ switch:
     id: switch_lights_auto
     icon: "mdi:lightbulb-outline"
     optimistic: true
-    restore_state: true
     restore_mode: RESTORE_DEFAULT_ON
 
   - platform: template
@@ -28,5 +27,31 @@ switch:
     id: switch_lights_home
     icon: "mdi:lightbulb-outline"
     optimistic: true
-    restore_state: true
     restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    name: "Pulizia acquario"
+    id: switch_clean
+    icon: "mdi:spray-bottle"
+    optimistic: true
+    restore_mode: ALWAYS_OFF 
+    on_turn_on:
+        - switch.turn_off: switch_lights_auto
+        - light.turn_off: lights
+        - switch.turn_off: switch_pump
+    on_turn_off:
+        - switch.turn_on: switch_lights_auto
+        - switch.turn_on: switch_pump
+        - lambda: |-
+            if (id(sntptime).now().is_valid())
+            {
+              std::time_t currentTime = id(sntptime).now().timestamp;
+              std::tm *currentTime_local = localtime(&currentTime);
+              int currentDay = currentTime_local->tm_mday;
+              int currentMonth = currentTime_local->tm_mon + 1;
+              int currentYear = currentTime_local->tm_year + 1900;
+
+              id(clean_day).state = currentDay;
+              id(clean_month).state = currentMonth;
+              id(clean_year).state = currentYear;
+            }

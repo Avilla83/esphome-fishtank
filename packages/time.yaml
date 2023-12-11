@@ -83,17 +83,41 @@ time:
               //id(lights_timer_slot_hour)[1], id(lights_timer_slot_minute)[1], id(lights_timer_slot_value_home)[2], id(lights_timer_slot_value_away)[2],
               //id(lights_timer_slot_hour)[2], id(lights_timer_slot_minute)[2], id(lights_timer_slot_value_home)[3], id(lights_timer_slot_value_away)[3]);
 
-              // Feeder timer loop
-              for (int i = 0; i < 2; i++)
+              for (int day = 0; day < 31; day++)
               {
-                if ((id(fishfeeder_timer_check)[0] != currentDayOfWeek) &&
-                    (id(fishfeeder_timer_check)[1] != i) &&
-                    (currentMinutesInDay > (id(fishfeeder_timer_slot_hour)[i]*60 + id(fishfeeder_timer_slot_minute)[i])))
+                for (int slot = 0; slot < 2; slot++)
                 {
-                  ESP_LOGD("timer", "Feed time %d:%d", currentHour, currentMinute);
-                  id(fish_feeder_trigger).press();
-                  id(fishfeeder_timer_check)[0] = currentDayOfWeek;
-                  id(fishfeeder_timer_check)[1] = i;
+                  if ((currentTime > id(fishfeeder_timer_check)[day][slot][0]) &&
+                      (0 == id(fishfeeder_timer_check)[day][slot][1]))
+                  {
+                    auto call = id(feeder_slider).make_call();
+                    call.number_increment(false);
+                    call.perform();
+
+                    id(fishfeeder_timer_check)[day][slot][1] = 1;
+
+                    std::tm *triggered_slot = localtime(&id(fishfeeder_timer_check)[day][slot][0]);
+                    ESP_LOGD("timer", "Feed time %d/%d %d:%d", triggered_slot->tm_mday, (triggered_slot->tm_mon + 1), triggered_slot->tm_hour, triggered_slot->tm_min);
+                  }
                 }
               }
+
+
+
+              /*if (id(fish_feeder_no_food).index_of(id(fish_feeder_no_food).state) != currentDayOfWeek)
+              {
+                // Feeder timer loop
+                for (int i = 0; i < 2; i++)
+                {
+                  if ((id(fishfeeder_timer_check)[0] != currentDayOfWeek) &&
+                      (id(fishfeeder_timer_check)[1] != i) &&
+                      (currentMinutesInDay > (id(fishfeeder_timer_slot_hour)[i]*60 + id(fishfeeder_timer_slot_minute)[i])))
+                  {
+                    ESP_LOGD("timer", "Feed time %d:%d", currentHour, currentMinute);
+                    id(fish_feeder_trigger).press();
+                    id(fishfeeder_timer_check)[0] = currentDayOfWeek;
+                    id(fishfeeder_timer_check)[1] = i;
+                  }
+                }
+              }*/
             }

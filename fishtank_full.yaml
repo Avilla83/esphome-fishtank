@@ -1,0 +1,901 @@
+esphome:
+  name: fishtank
+  on_boot:
+    then:
+      - stepper.report_position:
+          id: fish_feeder_stepper
+          position: !lambda 'return id(fishfeeder_last_position);'
+
+esp32:
+  board: esp-wrover-kit
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+#api:
+#  password: "19081908"
+
+ota:
+  password: "19081908"
+
+captive_portal:
+
+web_server:
+  port: 80
+
+dallas:
+  - pin: GPIO21
+
+# Individual sensors
+sensor:
+  - platform: dallas
+    address: 0x1601145d49c91e28
+    name: "Temperatura Acqua"
+
+light:
+  - platform: monochromatic
+    name: "Luci Dimmer"
+    id: lights
+    output: ledc_pwm
+    on_turn_on:
+      - switch.turn_on: switch_lights
+    on_turn_off:
+      - switch.turn_off: switch_lights
+
+stepper:
+  - platform: uln2003
+    id: fish_feeder_stepper
+    pin_a: GPIO26
+    pin_b: GPIO25
+    pin_c: GPIO33
+    pin_d: GPIO32
+    max_speed: 200 steps/s
+    sleep_when_done: True
+
+output:
+  - platform: ledc
+    id: ledc_pwm
+    pin: GPIO27
+
+globals:
+   # you will need globals for any other alarm times
+   - id: lights_timer_slot_hour
+     type: int[4]
+     restore_value: true
+     
+   - id: lights_timer_slot_minute
+     type: int[4]
+     restore_value: true
+     
+   - id: lights_timer_slot_value_home
+     type: int[4]
+     restore_value: true
+
+   - id: lights_timer_slot_value_away
+     type: int[4]
+     restore_value: true
+
+   - id: fishfeeder_timer_slot_hour
+     type: int[2]
+     restore_value: true
+     
+   - id: fishfeeder_timer_slot_minute
+     type: int[2]
+     restore_value: true
+
+   - id: fishfeeder_timer_check
+     type: time_t[31][2][2]
+     restore_value: true
+     initial_value: '{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}'
+
+   - id: fishfeeder_last_position
+     type: int
+     restore_value: true
+
+wifi:
+  ssid: "Home Wi-Fi"
+  password: "Antalope_2013!"
+  manual_ip:
+    # Set this to the IP of the ESP
+    static_ip: 192.168.1.20
+    # Set this to the IP address of the router. Often ends with .1
+    gateway: 192.168.1.1
+    # The subnet of the network. 255.255.255.0 works for most home networks.
+    subnet: 255.255.255.0
+    dns1: 8.8.8.8
+    dns2: 4.4.4.4
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Fishtank Fallback Hotspot"
+    password: "bxE6TUHgWdWm"
+    
+    
+number:
+  - platform: template
+    name: "Luci Slot 1 Inizio Ore"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[0] = (int)(x);
+    
+  - platform: template
+    name: "Luci Slot 1 Inizio Minuti"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[0] = (int)(x);
+    
+  - platform: template
+    name: "Luci Slot 2 Inizio Ore"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[1] = (int)(x);
+    
+  - platform: template
+    name: "Luci Slot 2 Inizio Minuti"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[1] = (int)(x);
+
+  - platform: template
+    name: "Luci Slot 3 Inizio Ore"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[2] = (int)(x);
+    
+  - platform: template
+    name: "Luci Slot 3 Inizio Minuti"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[2] = (int)(x);
+
+  - platform: template
+    name: "Luci Slot 3 Termine Ore"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_hour)[3] = (int)(x);
+    
+  - platform: template
+    name: "Luci Slot 3 Termine Minuti"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_minute)[3] = (int)(x);
+
+  - platform: template
+    name: "Luci a casa Valore Slot 0"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_home)[0] = (int)(x);
+
+  - platform: template
+    name: "Luci a casa Valore Slot 1"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_home)[1] = (int)(x);
+
+  - platform: template
+    name: "Luci a casa Valore Slot 2"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_home)[2] = (int)(x);
+
+  - platform: template
+    name: "Luci a casa Valore Slot 3"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_home)[3] = (int)(x);
+
+  - platform: template
+    name: "Luci fuori casa Valore Slot 0"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_away)[0] = (int)(x);
+
+  - platform: template
+    name: "Luci fuori casa Valore Slot 1"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_away)[1] = (int)(x);
+
+  - platform: template
+    name: "Luci fuori casa Valore Slot 2"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_away)[2] = (int)(x);
+
+  - platform: template
+    name: "Luci fuori casa Valore Slot 3"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 100
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(lights_timer_slot_value_away)[3] = (int)(x);
+
+  - platform: template
+    name: "Feeder Slot 1 Ore"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(fishfeeder_timer_slot_hour)[0] = (int)(x);
+    
+  - platform: template
+    name: "Feeder Slot 1 Minuti"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(fishfeeder_timer_slot_minute)[0] = (int)(x);
+    
+  - platform: template
+    name: "Feeder Slot 2 Ore"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 23
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(fishfeeder_timer_slot_hour)[1] = (int)(x);
+    
+  - platform: template
+    name: "Feeder Slot 2 Minuti"
+    optimistic: true
+    restore_value: true
+    min_value: 0
+    max_value: 59
+    step: 1
+    on_value:
+        then:
+            lambda: |-
+                id(fishfeeder_timer_slot_minute)[1] = (int)(x);
+
+  - platform: template
+    name: "Feeder Posizione"
+    id: feeder_slider
+    optimistic: true
+    restore_value: true
+    min_value: 1
+    max_value: 32
+    step: 1
+    on_value:
+        then:
+            - if:
+                condition:
+                    lambda: 'return (abs(id(fishfeeder_last_position) - x) > 1);'
+                then:
+                    - lambda: 'ESP_LOGD("feeder_slider", "Multiple step movement: last position %d, new position %", id(fishfeeder_last_position), x);'
+                    - stepper.set_target:
+                        id: fish_feeder_stepper
+                        target: !lambda 'return -(68*(int)(x-1));'
+                    - lambda: 'id (fishfeeder_last_position) = (int)x;'
+                else:
+                    - lambda: 'ESP_LOGD("feeder_slider", "Single step movement: last position %d, new position %", id(fishfeeder_last_position), x);'
+                    - stepper.set_target:
+                        id: fish_feeder_stepper
+                        target: !lambda 'return -(68*(int)(x-1));'
+                    - delay: 1s
+                    - stepper.set_target:
+                        id: fish_feeder_stepper
+                        target: !lambda 'return -(68*(int)(x-1))+46;'     
+                    - delay: 1s
+                    - stepper.set_target:
+                        id: fish_feeder_stepper
+                        target: !lambda 'return -(68*(int)(x-1));'
+                    - lambda: 'id (fishfeeder_last_position) = (int)x;'
+                    - delay: 1s
+                    - stepper.set_target:
+                        id: fish_feeder_stepper
+                        target: !lambda 'return -(68*(int)(x-1))+46;'     
+                    - delay: 1s
+                    - stepper.set_target:
+                        id: fish_feeder_stepper
+                        target: !lambda 'return -(68*(int)(x-1));'
+                    - lambda: 'id (fishfeeder_last_position) = (int)x;'
+
+  - platform: template
+    name: "Pulizia anno"
+    id: clean_year
+    optimistic: true
+    min_value: 2023
+    max_value: 2030
+    step: 1
+    restore_value: true
+    on_value:
+        then:
+            lambda: |-
+                int year = id(clean_year).state;
+                int month = id(clean_month).state;
+                int daysOfMonth = 30;
+                
+                if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+                {   
+                    daysOfMonth = 31;
+                }
+                else if((month == 2) && ((year%400==0) || (year%4==0 && year%100!=0)))	
+                {
+                    daysOfMonth = 29;
+                }
+                else if(month == 2)
+                {
+                    daysOfMonth = 28;
+                }
+
+                //id(clean_day).traits.set_max_value(daysOfMonth);
+
+  - platform: template
+    name: "Pulizia Mese"
+    id: clean_month
+    optimistic: true
+    min_value: 1
+    max_value: 12
+    step: 1
+    restore_value: true
+    on_value:
+        then:
+            lambda: |-
+                int year = id(clean_year).state;
+                int month = id(clean_month).state;
+                int daysOfMonth = 30;
+                
+                if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+                {   
+                    daysOfMonth = 31;
+                }
+                else if((month == 2) && ((year%400==0) || (year%4==0 && year%100!=0)))	
+                {
+                    daysOfMonth = 29;
+                }
+                else if(month == 2)
+                {
+                    daysOfMonth = 28;
+                }
+
+                //id(clean_day).traits.set_max_value(daysOfMonth);
+
+  - platform: template
+    name: "Pulizia Giorno"
+    id: clean_day
+    optimistic: true
+    min_value: 1
+    max_value: 31
+    step: 1
+    restore_value: true
+
+time:
+  - platform: sntp
+    id: sntptime
+    timezone: 'Europe/Rome'
+    on_time:
+      - seconds: /10
+        #minutes: /1
+        # note minutes: /1, not minutes: 1, the latter only does the first minute of each hour rather than every minute
+        then:
+        #- switch.toggle: switch_lights
+        - lambda: |-
+            if (id(sntptime).now().is_valid())
+            {
+              std::time_t currentTime = id(sntptime).now().timestamp;
+              std::tm *currentTime_local = localtime(&currentTime);
+              int currentHour = currentTime_local->tm_hour;
+              int currentMinute = currentTime_local->tm_min;
+              int currentMinutesInDay = currentHour*60 + currentMinute;
+              int currentDayOfWeek = currentTime_local->tm_wday;
+
+              int currentSlot = 0;
+              int current_slot_value = 0;
+              for (int i = 0; i < 3; i++)
+              {
+                  if ((currentMinutesInDay >= (id(lights_timer_slot_hour)[i]*60 + id(lights_timer_slot_minute)[i])) &&
+                      (currentMinutesInDay < (id(lights_timer_slot_hour)[i + 1]*60 + id(lights_timer_slot_minute)[i + 1])))
+                  {
+                    currentSlot = i + 1;
+
+                    if (true == id(switch_lights_home).state)
+                    {
+                      current_slot_value = id(lights_timer_slot_value_home)[currentSlot];
+                    }
+                    else
+                    {
+                      current_slot_value = id(lights_timer_slot_value_away)[currentSlot];
+                    }
+
+                    break;
+                  }
+              }
+
+              if (true == id(switch_lights_auto).state)
+              {
+                if ((current_slot_value > 0) &&
+                    (0 == id(lights).current_values.is_on()))
+                {
+                  id(lights).turn_on().perform();
+                  ESP_LOGD("timer", "Turning lights on");
+                }
+
+                float brightness = (float)current_slot_value/100;
+
+                if ((brightness != id(lights).remote_values.get_brightness()) &&
+                    (1 == id(lights).current_values.is_on()))
+                {
+                  auto lightsCall = id(lights).make_call();
+                  lightsCall.set_brightness(brightness);
+                  //lightsCall.set_white(brightness);
+                  lightsCall.perform();
+
+                  ESP_LOGD("timer", "Is on %d, set brightness %f, previous white value %f", id(lights).current_values.is_on(), brightness, id(lights).remote_values.get_brightness());
+                  //id(lights).current_values_as_brightness(&brightness);
+                  //id(lights).publish_state();
+                }
+
+                if ((current_slot_value == 0) &&
+                    (1 == id(lights).current_values.is_on()))
+                {
+                  id(lights).turn_off().perform();
+                  ESP_LOGD("timer", "Turning lights off");
+                }
+              }
+              else
+              {
+                ESP_LOGD("timer", "Manual mode %d", id(switch_lights_auto).state);
+              }
+
+              ESP_LOGD("timer", "Current time: %d:%d value %d", currentHour, currentMinute, current_slot_value);
+              //ESP_LOGD("timer", "Slot 0 %d:%d h %d a %d, Slot 1 %d:%d h %d a %d, Slot 2 %d:%d h %d a %d, Slot 3 %d:%d h %d a %d", 
+              //id(lights_timer_slot_hour)[3], id(lights_timer_slot_minute)[3], id(lights_timer_slot_value_home)[0], id(lights_timer_slot_value_away)[0],
+              //id(lights_timer_slot_hour)[0], id(lights_timer_slot_minute)[0], id(lights_timer_slot_value_home)[1], id(lights_timer_slot_value_away)[1],
+              //id(lights_timer_slot_hour)[1], id(lights_timer_slot_minute)[1], id(lights_timer_slot_value_home)[2], id(lights_timer_slot_value_away)[2],
+              //id(lights_timer_slot_hour)[2], id(lights_timer_slot_minute)[2], id(lights_timer_slot_value_home)[3], id(lights_timer_slot_value_away)[3]);
+
+              for (int day = 0; day < 31; day++)
+              {
+                for (int slot = 0; slot < 2; slot++)
+                {
+                  if ((currentTime > id(fishfeeder_timer_check)[day][slot][0]) &&
+                      (0 == id(fishfeeder_timer_check)[day][slot][1]))
+                  {
+                    auto call = id(feeder_slider).make_call();
+                    call.number_increment(false);
+                    call.perform();
+
+                    id(fishfeeder_timer_check)[day][slot][1] = 1;
+
+                    std::tm *triggered_slot = localtime(&id(fishfeeder_timer_check)[day][slot][0]);
+                    ESP_LOGD("timer", "Feed time %d/%d %d:%d", triggered_slot->tm_mday, (triggered_slot->tm_mon + 1), triggered_slot->tm_hour, triggered_slot->tm_min);
+                  }
+                }
+              }
+
+
+
+              /*if (id(fish_feeder_no_food).index_of(id(fish_feeder_no_food).state) != currentDayOfWeek)
+              {
+                // Feeder timer loop
+                for (int i = 0; i < 2; i++)
+                {
+                  if ((id(fishfeeder_timer_check)[0] != currentDayOfWeek) &&
+                      (id(fishfeeder_timer_check)[1] != i) &&
+                      (currentMinutesInDay > (id(fishfeeder_timer_slot_hour)[i]*60 + id(fishfeeder_timer_slot_minute)[i])))
+                  {
+                    ESP_LOGD("timer", "Feed time %d:%d", currentHour, currentMinute);
+                    id(fish_feeder_trigger).press();
+                    id(fishfeeder_timer_check)[0] = currentDayOfWeek;
+                    id(fishfeeder_timer_check)[1] = i;
+                  }
+                }
+              }*/
+            }
+
+binary_sensor:
+  - platform: gpio
+    id: green_button
+    name: "Bottone Verde"
+    pin: 
+      number: GPIO18
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      then:
+        - button.press: fish_feeder_trigger
+
+  - platform: gpio
+    id: blue_button
+    name: "Bottone Blu"
+    pin:
+      number: GPIO19
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      - min_length: 50ms
+        max_length: 350ms
+        then:
+          - button.press: button_pump_trigger
+
+  - platform: gpio
+    id: white_button
+    name: "Bottone Bianco"
+    pin:
+      number: GPIO22
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      - min_length: 50ms
+        max_length: 350ms
+        then:
+          - button.press: button_lights_trigger
+      - min_length: 500ms
+        max_length: 1000ms
+        then:
+          - switch.turn_on: switch_lights_auto
+
+  - platform: gpio
+    id: red_button
+    name: "Bottone Rosso"
+    pin:
+      number: GPIO23
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_click:
+      - min_length: 50ms
+        max_length: 350ms
+        then:
+          - button.press: fishtank_restart
+
+  - platform: gpio
+    id: light_sensor
+    name: "Sensore di luminosità"
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 1000ms
+      - delayed_off: 1000ms
+    on_state:
+      if:
+        condition:
+          binary_sensor.is_on: light_sensor
+        then:
+          - switch.turn_on: switch_lights_home
+        else:
+          - switch.turn_off: switch_lights_home
+          
+          
+switch:
+  - platform: gpio
+    name: "Pompa Acqua"
+    id: switch_pump
+    icon: "mdi:water-pump"
+    pin: GPIO14
+    inverted: true
+    restore_mode: RESTORE_DEFAULT_ON
+    
+  - platform: gpio
+    name: "Luci Relè"
+    id: switch_lights
+    icon: "mdi:lightbulb-outline"
+    pin: GPIO13
+    inverted: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    name: "Luci auto-manuale"
+    id: switch_lights_auto
+    icon: "mdi:lightbulb-outline"
+    optimistic: true
+    restore_state: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    name: "Luci a casa-fuori casa"
+    id: switch_lights_home
+    icon: "mdi:lightbulb-outline"
+    optimistic: true
+    restore_state: true
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    name: "Pulizia acquario"
+    id: switch_clean
+    icon: "mdi:spray-bottle"
+    optimistic: true
+    restore_mode: ALWAYS_OFF 
+    on_turn_on:
+        - switch.turn_off: switch_lights_auto
+        - light.turn_off: lights
+        - switch.turn_off: switch_pump
+    on_turn_off:
+        - switch.turn_on: switch_lights_auto
+        - switch.turn_on: switch_pump
+        - lambda: |-
+            if (id(sntptime).now().is_valid())
+            {
+              std::time_t currentTime = id(sntptime).now().timestamp;
+              std::tm *currentTime_local = localtime(&currentTime);
+              int currentDay = currentTime_local->tm_mday;
+              int currentMonth = currentTime_local->tm_mon + 1;
+              int currentYear = currentTime_local->tm_year + 1900;
+
+              id(clean_day).state = currentDay;
+              id(clean_month).state = currentMonth;
+              id(clean_year).state = currentYear;
+            }
+            
+button:
+  - platform: restart
+    name: "Reset"
+    id: fishtank_restart
+
+  - platform: template
+    name: "Feeder caduta cibo"
+    id: fish_feeder_trigger
+    on_press:
+      then:
+        - number.increment:
+            id: feeder_slider
+            cycle: false
+
+  - platform: template
+    name: "Feeder fine tune right"
+    id: fish_feeder_finetune_right
+    on_press:
+      then:
+        - number.to_min:
+            id: feeder_slider
+
+        - lambda: |-
+            id(fish_feeder_stepper).report_position(0);          
+            id(fish_feeder_stepper).set_target(-4);
+            id(fish_feeder_stepper).report_position(0);
+  
+  - platform: template
+    name: "Feeder fine tune left"
+    id: fish_feeder_finetune_left
+    on_press:
+      then:
+        - number.to_min:
+            id: feeder_slider
+
+        - lambda: |-
+            id(fish_feeder_stepper).report_position(0);          
+            id(fish_feeder_stepper).set_target(+4);
+            id(fish_feeder_stepper).report_position(0);
+
+  - platform: template
+    name: "Feeder reset"
+    id: fish_feeder_reset
+    on_press:
+      then:
+        - lambda: |-            
+            auto call = id(feeder_slider).make_call();
+            call.number_to_min();
+            call.perform();
+
+            id(fish_feeder_stepper).report_position(0);
+
+            ESP_LOGD("feeder_reset", "Populating feeder calendar");
+            
+            std::time_t currentTime = id(sntptime).now().timestamp;
+            std::tm *feedtime = localtime(&currentTime);
+
+            // Day 0 is done before the loop to check current time
+            // Skip today if current time is already after the last feeding time
+            if (feedtime->tm_hour >= id(fishfeeder_timer_slot_hour)[1])
+            {
+              feedtime->tm_mday++;
+            }
+            else if (feedtime->tm_hour >= id(fishfeeder_timer_slot_hour)[0])
+            {
+              id(fishfeeder_timer_check)[0][0][1] = 1;
+            }
+            else
+            {
+              id(fishfeeder_timer_check)[0][0][1] = 0;
+            }
+
+            feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[0];
+            feedtime->tm_min = id(fishfeeder_timer_slot_minute)[0];
+            id(fishfeeder_timer_check)[0][0][0] = mktime(feedtime);
+
+            //ESP_LOGD("feeder_reset", "Entering feeder loop Feed time 0 %d/%d %d:%d", feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+            feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[1];
+            feedtime->tm_min = id(fishfeeder_timer_slot_minute)[1];
+            id(fishfeeder_timer_check)[0][1][0] = mktime(feedtime);
+            id(fishfeeder_timer_check)[0][1][1] = 0;
+
+            //ESP_LOGD("feeder_reset", "Entering feeder loop Feed time 1 %d/%d %d:%d", feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+            feedtime->tm_mday++;
+
+            // Fill from day 1 to the end
+            for (int day = 1; day < 31; day++)
+            {
+              if (feedtime->tm_wday == id(fish_feeder_no_food).index_of(id(fish_feeder_no_food).state))
+              {
+                feedtime->tm_mday++;
+                //ESP_LOGD("feeder_reset", "Skipping day weekday %d", feedtime->tm_wday);
+              }
+
+              feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[0];
+              feedtime->tm_min = id(fishfeeder_timer_slot_minute)[0];
+
+              id(fishfeeder_timer_check)[day][0][0] = mktime(feedtime);
+              id(fishfeeder_timer_check)[day][0][1] = 0;
+
+              //ESP_LOGD("feeder_reset", "Entering feeder loop day %d Feed time 0 %d/%d %d:%d", day, feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+              feedtime->tm_hour = id(fishfeeder_timer_slot_hour)[1];
+              feedtime->tm_min = id(fishfeeder_timer_slot_minute)[1];
+
+              id(fishfeeder_timer_check)[day][1][0] = mktime(feedtime);
+              id(fishfeeder_timer_check)[day][1][1] = 0;
+
+              //ESP_LOGD("feeder_reset", "Entering feeder loop day %d Feed time 1 %d/%d %d:%d", day, feedtime->tm_mday, feedtime->tm_mon, feedtime->tm_hour, feedtime->tm_min);
+
+              feedtime->tm_mday++;
+            }
+
+            /*ESP_LOGD("feeder_reset", "Entering feeder loop Feed day 0 %d/%d %d/%d, 1 %d/%d %d/%d, 2 %d/%d %d/%d, 3 %d/%d %d/%d, 4 %d/%d %d/%d, 5 %d/%d %d/%d, 6 %d/%d %d/%d, 7 %d/%d %d/%d, 8 %d/%d %d/%d, 9 %d/%d %d/%d", 
+              id(fishfeeder_timer_check)[0][0][0],id(fishfeeder_timer_check)[0][0][1],id(fishfeeder_timer_check)[0][1][0],id(fishfeeder_timer_check)[0][1][1],
+              id(fishfeeder_timer_check)[1][0][0],id(fishfeeder_timer_check)[1][0][1],id(fishfeeder_timer_check)[1][1][0],id(fishfeeder_timer_check)[1][1][1],
+              id(fishfeeder_timer_check)[2][0][0],id(fishfeeder_timer_check)[2][0][1],id(fishfeeder_timer_check)[2][1][0],id(fishfeeder_timer_check)[2][1][1],
+              id(fishfeeder_timer_check)[3][0][0],id(fishfeeder_timer_check)[3][0][1],id(fishfeeder_timer_check)[3][1][0],id(fishfeeder_timer_check)[3][1][1],
+              id(fishfeeder_timer_check)[4][0][0],id(fishfeeder_timer_check)[4][0][1],id(fishfeeder_timer_check)[4][1][0],id(fishfeeder_timer_check)[4][1][1],
+              id(fishfeeder_timer_check)[5][0][0],id(fishfeeder_timer_check)[5][0][1],id(fishfeeder_timer_check)[5][1][0],id(fishfeeder_timer_check)[5][1][1],
+              id(fishfeeder_timer_check)[6][0][0],id(fishfeeder_timer_check)[6][0][1],id(fishfeeder_timer_check)[6][1][0],id(fishfeeder_timer_check)[6][1][1],
+              id(fishfeeder_timer_check)[7][0][0],id(fishfeeder_timer_check)[7][0][1],id(fishfeeder_timer_check)[7][1][0],id(fishfeeder_timer_check)[7][1][1],
+              id(fishfeeder_timer_check)[8][0][0],id(fishfeeder_timer_check)[8][0][1],id(fishfeeder_timer_check)[8][1][0],id(fishfeeder_timer_check)[8][1][1],
+              id(fishfeeder_timer_check)[9][0][0],id(fishfeeder_timer_check)[9][0][1],id(fishfeeder_timer_check)[9][1][0],id(fishfeeder_timer_check)[9][1][1]);
+            */
+
+
+  - platform: template
+    name: "Luci Interruttore"
+    id: button_lights_trigger
+    on_press:
+      then:
+        - switch.turn_off: switch_lights_auto
+        - light.toggle: lights
+
+  - platform: template
+    name: "Pompa Interruttore"
+    id: button_pump_trigger
+    on_press:
+      then:
+        - switch.toggle: switch_pump
+
+select:
+  - platform: template
+    name: "Fish Feeder giorno digiuno"
+    id: fish_feeder_no_food
+    optimistic: true
+    options:
+      - Domenica
+      - Lunedì
+      - Martedì
+      - Mercoledì
+      - Giovedì
+      - Venerdì
+      - Sabato
+      - Nessuno
+    restore_value: true
+    initial_option: Sabato
+

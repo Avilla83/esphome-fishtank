@@ -1,5 +1,10 @@
 esphome:
   name: fishtank
+  on_boot:
+    then:
+      - stepper.report_position:
+          id: fish_feeder_stepper
+          position: !lambda 'return id(fishfeeder_last_position);'
 
 esp32:
   board: esp-wrover-kit
@@ -22,18 +27,13 @@ web_server:
   port: 80
 
 dallas:
-  - pin: GPIO21
+  - pin: GPIO2
 
 # Individual sensors
 sensor:
   - platform: dallas
     address: 0x1601145d49c91e28
     name: "Temperatura Acqua"
-
-text_sensor:
-  - platform: template
-    name: "Ultima pulizia"
-    id: last_clean
 
 light:
   - platform: monochromatic
@@ -44,6 +44,12 @@ light:
       - switch.turn_on: switch_lights
     on_turn_off:
       - switch.turn_off: switch_lights
+
+  - platform: monochromatic
+    output: gpio_4_backlight_pwm
+    name: "Display Backlight"
+    id: back_light
+    restore_mode: ALWAYS_ON
 
 stepper:
   - platform: uln2003
@@ -59,6 +65,96 @@ output:
   - platform: ledc
     id: ledc_pwm
     pin: GPIO27
+    frequency: 5000 Hz
+    max_power: 100%
+
+  - platform: ledc
+    pin: GPIO4
+    id: gpio_4_backlight_pwm
+
+spi:
+  clk_pin: GPIO18
+  mosi_pin: GPIO23
+  miso_pin: GPIO19
+
+font:
+  - file:
+      type: gfonts
+      family: Roboto
+      weight: 400
+    id: roboto_16
+    size: 16
+
+image:
+  - file: "images/background.png"
+    id: background
+    resize: 320x240
+    type: rgb24
+
+  - file: "images/pump.png"
+    id: pump
+    resize: 160x120
+    type: rgba
+    use_transparency: True
+
+display:
+  - platform: ili9xxx
+    model: ili9341
+    dc_pin: GPIO17
+    cs_pin: GPIO5
+    reset_pin: GPIO16
+    auto_clear_enabled: false
+    rotation: 90
+    update_interval: 5s
+    lambda: |-
+      it.fill(Color::WHITE);
+      auto RED = Color(255, 0, 0);
+      auto green = Color(0, 255, 0);
+      auto blue = Color(0, 0, 255);
+      auto white = Color(255, 128, 255);
+      auto BLACK = Color(0, 0, 0);
+      //it.rectangle(20, 50, 30, 30, white);
+      //it.rectangle(25, 55, 30, 30, RED);
+      //it.rectangle(30, 60, 30, 30, green);
+      //it.rectangle(35, 65, 30, 30, blue);
+      //it.print(0, 0, id(roboto_16), RED, "(0,0)");
+      //it.print(300, 0, id(roboto_16), RED, "(300,0)");
+      //it.print(100, 100, id(roboto_16), RED, "(100,100)");
+      //it.print(0, 200, id(roboto_16), RED, "(0,200)");
+      //it.print(300, 200, id(roboto_16), RED, "(300,200)");
+            
+      // Draw the image my_image at position [x=0,y=0]
+      it.image(0, 0, id(background));
+
+      auto time_text = id(sntptime).now().strftime("%Y-%m-%d %H:%M");
+      it.print(160, 20, id(roboto_16), BLACK, TextAlign::BOTTOM_CENTER, time_text.c_str());
+
+      it.image(0, 40, id(pump));
+
+      if (id(my_touchscreen).touched)
+        it.filled_circle(id(my_touchscreen).x, id(my_touchscreen).y, 10, RED);
+
+touchscreen:
+  - platform: xpt2046
+    id: my_touchscreen
+    cs_pin: GPIO21
+    interrupt_pin: GPIO22
+    update_interval: 50ms
+    report_interval: 1s
+    threshold: 400
+    calibration_x_min: 240
+    calibration_x_max: 3780
+    calibration_y_min: 3950
+    calibration_y_max: 310
+    swap_x_y: false
+    on_touch:
+    - lambda: |-
+          ESP_LOGD("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+              id(my_touchscreen).x,
+              id(my_touchscreen).y,
+              id(my_touchscreen).x_raw,
+              id(my_touchscreen).y_raw
+              );
 
 globals:
    # you will need globals for any other alarm times
@@ -87,11 +183,11 @@ globals:
      restore_value: true
 
    - id: fishfeeder_timer_check
-     type: int[2]
+     type: time_t[31][2][2]
      restore_value: true
-     initial_value: '{0,0}'
+     initial_value: '{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}'
 
-   - id: fishfeeder_position
+   - id: fishfeeder_last_position
      type: int
      restore_value: true
 
@@ -102,3 +198,4 @@ packages:
   binary_sensor: !include packages/binary_sensor.yaml
   switch: !include packages/switch.yaml
   button: !include packages/buttons.yaml
+  select: !include packages/select.yaml
