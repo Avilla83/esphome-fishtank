@@ -1,85 +1,150 @@
 binary_sensor:
- # - platform: gpio
- #   id: green_button
- #   name: "Bottone Verde"
- #   pin: 
- #     number: GPIO18
- #     mode: INPUT_PULLUP
- #     inverted: True
- #   filters:
- #     - delayed_on: 10ms
- #     - delayed_off: 10ms
- #   on_click:
- #     then:
- #       - button.press: fish_feeder_trigger
+  - platform: touchscreen
+    id: touch_zone0
+    x_min: $back_home_x_min
+    x_max: $back_home_x_max
+    y_min: $back_home_y_min
+    y_max: $back_home_y_max
+    on_press:
+      - logger.log: "Zone 0 was touched"
+      - if:
+          condition:
+            not:
+              display.is_displaying_page: mainPage
+          then:
+            - display.page.show: mainPage
 
- # - platform: gpio
- #   id: blue_button
- #   name: "Bottone Blu"
- #   pin:
- #     number: GPIO19
- #     mode: INPUT_PULLUP
- #     inverted: True
- #   filters:
- #     - delayed_on: 10ms
- #     - delayed_off: 10ms
- #   on_click:
- #     - min_length: 50ms
- #       max_length: 350ms
- #       then:
- #         - button.press: button_pump_trigger
+  - platform: touchscreen
+    id: touch_zone_main_pump
+    x_min: $main_pump_x_min
+    x_max: $main_pump_x_max
+    y_min: $main_pump_y_min
+    y_max: $main_pump_y_max
+    page_id: mainPage
+    on_press:
+      - display.page.show: pumpPage
 
- # - platform: gpio
- #   id: white_button
- #   name: "Bottone Bianco"
- #   pin:
- #     number: GPIO22
- #     mode: INPUT_PULLUP
- #     inverted: True
- #   filters:
- #     - delayed_on: 10ms
- #     - delayed_off: 10ms
- #   on_click:
- #     - min_length: 50ms
- #       max_length: 350ms
- #       then:
- #         - button.press: button_lights_trigger
- #     - min_length: 500ms
- #       max_length: 1000ms
- #       then:
- #         - switch.turn_on: switch_lights_auto
+  - platform: touchscreen
+    id: touch_zone_main_light
+    x_min: $main_light_x_min
+    x_max: $main_light_x_max
+    y_min: $main_light_y_min
+    y_max: $main_light_y_max
+    page_id: mainPage
+    on_press:
+      - display.page.show: lightPage
 
-  #- platform: gpio
-  #  id: red_button
-  #  name: "Bottone Rosso"
-  #  pin:
-  #    number: GPIO23
-  #    mode: INPUT_PULLUP
-  #    inverted: True
-  #  filters:
-  #    - delayed_on: 10ms
-  #    - delayed_off: 10ms
-  #  on_click:
-  #    - min_length: 50ms
-  #      max_length: 350ms
-  #      then:
-  #        - button.press: fishtank_restart
+  - platform: touchscreen
+    id: touch_zone_main_fish
+    x_min: $main_fish_x_min
+    x_max: $main_fish_x_max
+    y_min: $main_fish_y_min
+    y_max: $main_fish_y_max
+    page_id: mainPage
+    on_press:
+      - display.page.show: feedPage
 
-  - platform: gpio
-    id: light_sensor
-    name: "Sensore di luminosità"
-    pin:
-      number: GPIO15
-      mode: INPUT_PULLUP
-      inverted: True
-    filters:
-      - delayed_on: 1000ms
-      - delayed_off: 1000ms
-    on_state:
-      if:
-        condition:
-          binary_sensor.is_on: light_sensor
-        then:
-          - switch.turn_on: switch_lights_home
-        else:
-          - switch.turn_off: switch_lights_home
+  - platform: touchscreen
+    id: touch_zone_main_clean
+    x_min: $main_clean_x_min
+    x_max: $main_clean_x_max
+    y_min: $main_clean_y_min
+    y_max: $main_clean_y_max
+    page_id: mainPage
+    on_press:
+      - display.page.show: cleanPage
+
+  - platform: touchscreen
+    id: touch_zone_pump_switch
+    x_min: $pump_switch_x_min
+    x_max: $pump_switch_x_max
+    y_min: $pump_switch_y_min
+    y_max: $pump_switch_y_max
+    page_id: pumpPage
+    on_press:
+      - switch.toggle: switch_pump
+
+  - platform: touchscreen
+    id: touch_zone_light_switch
+    x_min: $light_switch_x_min
+    x_max: $light_switch_x_max
+    y_min: $light_switch_y_min
+    y_max: $light_switch_y_max
+    page_id: lightPage
+    on_press:
+      - switch.turn_off: switch_lights_auto
+      - light.toggle: lights
+
+  - platform: touchscreen
+    id: touch_zone_light_auto
+    x_min: $light_switch_auto_x_min
+    x_max: $light_switch_auto_x_max
+    y_min: $light_switch_auto_y_min
+    y_max: $light_switch_auto_y_max
+    page_id: lightPage
+    on_press:
+      - switch.toggle: switch_lights_auto
+
+  - platform: touchscreen
+    id: touch_zone_feed_left
+    x_min: $feed_left_x_min
+    x_max: $feed_left_x_max
+    y_min: $feed_left_y_min
+    y_max: $feed_left_y_max
+    page_id: feedPage
+    on_press:
+        - number.decrement:
+            id: feeder_slider
+            cycle: false
+
+  - platform: touchscreen
+    id: touch_zone_feed_right
+    x_min: $feed_right_x_min
+    x_max: $feed_right_x_max
+    y_min: $feed_right_y_min
+    y_max: $feed_right_y_max
+    page_id: feedPage
+    on_press:
+        - number.increment:
+            id: feeder_slider
+            cycle: false
+
+  - platform: touchscreen
+    id: touch_zone_clean_switch
+    x_min: $clean_switch_x_min
+    x_max: $clean_switch_x_max
+    y_min: $clean_switch_y_min
+    y_max: $clean_switch_y_max
+    page_id: cleanPage
+    on_press:
+      - switch.toggle: switch_clean
+
+  - platform: touchscreen
+    id: touch_zone_screensaver
+    x_min: 0
+    x_max: $end_screen_x
+    y_min: 0
+    y_max: $end_screen_y
+    page_id: screensaverPage
+    on_press:
+          - display.page.show: mainPage
+
+  
+#  - platform: gpio
+#    id: light_sensor
+#    name: "Sensore di luminosità"
+#    pin:
+#      number: GPIO15
+#      mode: INPUT_PULLUP
+#      inverted: True
+#    filters:
+#      - delayed_on: 1000ms
+#      - delayed_off: 1000ms
+#    on_state:
+#      if:
+#        condition:
+#          binary_sensor.is_on: light_sensor
+#        then:
+#          - switch.turn_on: switch_lights_home
+#        else:
+#          - switch.turn_off: switch_lights_home

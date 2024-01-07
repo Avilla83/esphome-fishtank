@@ -1,0 +1,139 @@
+display:
+  - platform: ili9xxx
+    id: my_display
+    model: ili9341
+    dc_pin: GPIO17
+    cs_pin: GPIO5
+    reset_pin: GPIO16
+    auto_clear_enabled: false
+    rotation: 0
+    update_interval: 1s
+    pages:
+      - id: mainPage
+        lambda: |-
+          // Draw the image my_image at position [x=0,y=0]
+          it.image(0, 0, id(img_background));
+
+          it.image($thermometer_x, $thermometer_image_y, id(img_thermometer), ImageAlign::CENTER, id(color_icon));
+          it.printf($thermometer_x, $thermometer_text_y, id(roboto_16), id(color_text), TextAlign::CENTER, "%.1f°C", id(temp_sensor).state);
+
+          auto date_text = id(sntptime).now().strftime("%Y-%m-%d");
+          auto time_text = id(sntptime).now().strftime("%H:%M:%S");
+          it.print($date_offset_x, $date_offset_y, id(roboto_16), id(color_text), TextAlign::CENTER, date_text.c_str());
+          it.print($time_offset_x, $time_offset_y, id(roboto_16), id(color_text), TextAlign::CENTER, time_text.c_str());
+
+          it.image($light_sensor_x, $light_sensor_image_y, id(img_light_dark), ImageAlign::CENTER, id(color_icon));
+          it.printf($light_sensor_x, $light_sensor_text_y, id(roboto_16), id(color_text), TextAlign::CENTER, "%.1flx", id(light_sensor).state);
+
+          it.image($main_pump_x_center, $main_pump_y_center, id(img_pump), ImageAlign::CENTER, id(color_icon));
+          it.image($main_light_x_center, $main_light_y_center, id(img_light), ImageAlign::CENTER, id(color_icon));
+          it.image($main_fish_x_center, $main_fish_y_center, id(img_fish), ImageAlign::CENTER, id(color_icon));
+          it.image($main_clean_x_center, $main_clean_y_center, id(img_broom), ImageAlign::CENTER, id(color_icon));
+
+          //if (id(my_touchscreen).touched)
+          //  it.filled_circle(id(my_touchscreen).x, id(my_touchscreen).y, 10, RED);
+
+      - id: pumpPage
+        lambda: |-
+          // Draw the image my_image at position [x=0,y=0]
+          it.image(0, 0, id(img_background));
+          it.image($subpage_main_icon_center_x, $subpage_main_icon_center_y, id(img_pump), ImageAlign::CENTER, id(color_icon));
+
+          it.print($pump_switch_title_x_center, $pump_switch_title_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "Stato");
+
+          it.print($pump_txtoff_x_center, $pump_txtoff_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "OFF");
+
+          // Change switch image depending on the status
+          BaseImage* image_switch = id(img_switch);
+          if (!id(switch_pump).state)
+          {
+            image_switch = id(img_switch_off);
+          }
+
+          it.image($pump_switch_x_center, $pump_switch_y_center, image_switch, ImageAlign::CENTER, id(color_icon));
+          it.print($pump_txton_x_center, $pump_txton_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "ON");
+
+          it.image($back_home_center_x, $back_home_center_y, id(img_home), ImageAlign::CENTER, id(color_icon));
+
+      - id: lightPage
+        lambda: |-
+          // Draw the image my_image at position [x=0,y=0]
+          it.image(0, 0, id(img_background));
+
+          it.image($subpage_main_icon_center_x, $subpage_main_icon_center_y, id(img_light), ImageAlign::CENTER, id(color_icon));
+
+          it.print($light_switch_title_x_center, $light_switch_title_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "Stato");
+
+          it.print($light_txtoff_x_center, $light_txtoff_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "OFF");
+
+          // Change switch image depending on the status
+          BaseImage* image_switch = id(img_switch);
+          if (!id(switch_lights).state)
+          {
+            image_switch = id(img_switch_off);
+          }
+
+          it.image($light_switch_x_center, $light_switch_y_center, image_switch, ImageAlign::CENTER, id(color_icon));
+          it.print($light_txton_x_center, $light_txton_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "ON");
+
+          it.print($light_switch_auto_title_x_center, $light_switch_auto_title_y_center, id(roboto_16), id(color_text), TextAlign::TOP_CENTER, "Auto/Manual");
+
+          it.print($light_txtoff_auto_x_center, $light_txtoff_auto_y_center, id(roboto_16), id(color_text), TextAlign::TOP_CENTER, "MANUALE");
+          
+          // Change switch image depending on the status
+          BaseImage* image_switch_auto = id(img_switch);
+          if (!id(switch_lights_auto).state)
+          {
+            image_switch_auto = id(img_switch_off);
+          }
+
+          it.image($light_switch_auto_x_center, $light_switch_auto_y_center, image_switch_auto, ImageAlign::CENTER, id(color_icon));
+          
+          it.print($light_txton_auto_x_center, $light_txton_auto_y_center, id(roboto_16), id(color_text), TextAlign::TOP_CENTER, "AUTO");
+
+          it.image($back_home_center_x, $back_home_center_y, id(img_home), ImageAlign::CENTER, id(color_icon));
+      
+      - id: feedPage
+        lambda: |-
+          // Draw the image my_image at position [x=0,y=0]
+          it.image(0, 0, id(img_background));
+          it.image($back_home_center_x, $back_home_center_y, id(img_home), ImageAlign::CENTER, id(color_icon));
+          it.image($subpage_main_icon_center_x, $subpage_main_icon_center_y, id(img_fish), ImageAlign::CENTER, id(color_icon));
+
+          it.print($feed_pos_title_x_center, $feed_pos_title_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "Posizione");
+
+          it.image($feed_left_x_center, $feed_left_y_center, id(img_left_outline), ImageAlign::CENTER, id(color_icon));
+          it.printf($feed_pos_x_center, $feed_pos_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "%d", id(fishfeeder_last_position));
+          it.image($feed_right_x_center, $feed_right_y_center, id(img_right_outline), ImageAlign::CENTER, id(color_icon));
+      
+      - id: cleanPage
+        lambda: |-
+          // Draw the image my_image at position [x=0,y=0]
+          it.image(0, 0, id(img_background));
+          it.image($back_home_center_x, $back_home_center_y, id(img_home), ImageAlign::CENTER, id(color_icon));
+          it.image($subpage_main_icon_center_x, $subpage_main_icon_center_y, id(img_broom), ImageAlign::CENTER, id(color_icon));
+
+          it.print($clean_switch_title_x_center, $clean_switch_title_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "Pulizia");
+
+          it.print($clean_txtoff_x_center, $clean_txtoff_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "OFF");
+
+          // Change switch image depending on the status
+          BaseImage* image_switch = id(img_switch);
+          if (!id(switch_clean).state)
+          {
+            image_switch = id(img_switch_off);
+          }
+
+          it.image($clean_switch_x_center, $clean_switch_y_center, image_switch, ImageAlign::CENTER, id(color_icon));
+          it.print($clean_txton_x_center, $clean_txton_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "ON");
+
+          it.print($clean_last_title_x_center, $clean_last_title_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, "Ultima pulizia");
+          esphome::ESPTime temp_time = esphome::ESPTime::from_epoch_local(id(clean_time));
+          auto last_clean_date_txt = temp_time.strftime("%Y-%m-%d %H:%M");
+          it.print($clean_last_x_center, $clean_last_y_center, id(roboto_16), id(color_text), TextAlign::CENTER, last_clean_date_txt.c_str());
+
+      - id: screensaverPage
+        lambda: |-
+          // Draw the image my_image at position [x=0,y=0]
+          it.image(0, 0, id(img_background));
+

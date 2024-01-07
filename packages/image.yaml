@@ -1,0 +1,57 @@
+image:
+  - file: "images/background_vertical.png"
+    id: img_background
+    resize: 240x320
+    type: rgb24
+
+  - file: mdi:pump
+    id: img_pump
+    resize: 80x80
+
+  - file: mdi:home-circle
+    id: img_home
+    resize: 60x60
+
+  - file: mdi:lightbulb-on-outline
+    id: img_light
+    resize: 80x80
+
+  - file: mdi:fish
+    id: img_fish
+    resize: 80x80
+
+  - file: mdi:broom
+    id: img_broom
+    resize: 80x80
+
+  - file: mdi:thermometer
+    id: img_thermometer
+    resize: 40x40
+
+  - file: mdi:theme-light-dark
+    id: img_light_dark
+    resize: 40x40
+
+  - file: mdi:toggle-switch
+    id: img_switch
+    resize: 60x100
+
+  - file: mdi:toggle-switch-off
+    id: img_switch_off
+    resize: 60x100
+
+  - file: mdi:arrow-left-drop-circle-outline
+    id: img_left_outline
+    resize: 80x80
+
+  - file: mdi:arrow-left-drop-circle
+    id: img_left
+    resize: 80x80
+
+  - file: mdi:arrow-right-drop-circle-outline
+    id: img_right_outline
+    resize: 80x80
+
+  - file: mdi:arrow-right-drop-circle
+    id: img_right
+    resize: 80x80

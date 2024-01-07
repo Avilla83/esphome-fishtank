@@ -34,6 +34,19 @@ sensor:
   - platform: dallas
     address: 0x1601145d49c91e28
     name: "Temperatura Acqua"
+    id: temp_sensor
+
+  - platform: adc
+    pin: GPIO34
+    name: "Sensore di luce"
+    id: light_sensor
+    device_class: illuminance
+    unit_of_measurement: lx
+    accuracy_decimals: 6
+    update_interval: 10s
+    filters:
+      - lambda: |-
+          return (x / 10000.0) * 2000000.0;
 
 light:
   - platform: monochromatic
@@ -81,58 +94,49 @@ font:
   - file:
       type: gfonts
       family: Roboto
-      weight: 400
+      weight: bold
     id: roboto_16
-    size: 16
+    size: 18
 
-image:
-  - file: "images/background.png"
-    id: background
-    resize: 320x240
-    type: rgb24
+color:
+  - id: color_icon
+    red: 0%
+    green: 0%
+    blue: 0%
+    white: 0%
 
-  - file: "images/pump.png"
-    id: pump
-    resize: 160x120
-    type: rgba
-    use_transparency: True
+  - id: color_text
+    red: 0%
+    green: 0%
+    blue: 0%
+    white: 0%
 
-display:
-  - platform: ili9xxx
-    model: ili9341
-    dc_pin: GPIO17
-    cs_pin: GPIO5
-    reset_pin: GPIO16
-    auto_clear_enabled: false
-    rotation: 90
-    update_interval: 5s
-    lambda: |-
-      it.fill(Color::WHITE);
-      auto RED = Color(255, 0, 0);
-      auto green = Color(0, 255, 0);
-      auto blue = Color(0, 0, 255);
-      auto white = Color(255, 128, 255);
-      auto BLACK = Color(0, 0, 0);
-      //it.rectangle(20, 50, 30, 30, white);
-      //it.rectangle(25, 55, 30, 30, RED);
-      //it.rectangle(30, 60, 30, 30, green);
-      //it.rectangle(35, 65, 30, 30, blue);
-      //it.print(0, 0, id(roboto_16), RED, "(0,0)");
-      //it.print(300, 0, id(roboto_16), RED, "(300,0)");
-      //it.print(100, 100, id(roboto_16), RED, "(100,100)");
-      //it.print(0, 200, id(roboto_16), RED, "(0,200)");
-      //it.print(300, 200, id(roboto_16), RED, "(300,200)");
-            
-      // Draw the image my_image at position [x=0,y=0]
-      it.image(0, 0, id(background));
+#animation:
+#  - file: "images/tiny.gif"
+#    id: img_screensaver
+#    resize: 80x80
+#    type: rgb565
 
-      auto time_text = id(sntptime).now().strftime("%Y-%m-%d %H:%M");
-      it.print(160, 20, id(roboto_16), BLACK, TextAlign::BOTTOM_CENTER, time_text.c_str());
+interval:
+  - interval: 500ms
+    then:
+    - lambda: |-
+        if (id(screensaver_time) != 0)
+        {
+          std::time_t now = id(sntptime).now().timestamp;
+          double time_diff = std::difftime(now, id(screensaver_time));
+          
+          // Check if it is time to activate the screensaver
+          if (time_diff > $screensaver_trigger_time)
+          {
+            id(screensaver_time) = 0;
+            id(my_display).show_page(id(screensaverPage));
+          }
+        }
 
-      it.image(0, 40, id(pump));
-
-      if (id(my_touchscreen).touched)
-        it.filled_circle(id(my_touchscreen).x, id(my_touchscreen).y, 10, RED);
+  #- interval: 1s
+  #  then:
+  #    animation.next_frame: img_screensaver
 
 touchscreen:
   - platform: xpt2046
@@ -149,49 +153,18 @@ touchscreen:
     swap_x_y: false
     on_touch:
     - lambda: |-
-          ESP_LOGD("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-              id(my_touchscreen).x,
-              id(my_touchscreen).y,
-              id(my_touchscreen).x_raw,
-              id(my_touchscreen).y_raw
-              );
+        id(screensaver_time) = id(sntptime).now().timestamp;
 
-globals:
-   # you will need globals for any other alarm times
-   - id: lights_timer_slot_hour
-     type: int[4]
-     restore_value: true
-     
-   - id: lights_timer_slot_minute
-     type: int[4]
-     restore_value: true
-     
-   - id: lights_timer_slot_value_home
-     type: int[4]
-     restore_value: true
-
-   - id: lights_timer_slot_value_away
-     type: int[4]
-     restore_value: true
-
-   - id: fishfeeder_timer_slot_hour
-     type: int[2]
-     restore_value: true
-     
-   - id: fishfeeder_timer_slot_minute
-     type: int[2]
-     restore_value: true
-
-   - id: fishfeeder_timer_check
-     type: time_t[31][2][2]
-     restore_value: true
-     initial_value: '{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}'
-
-   - id: fishfeeder_last_position
-     type: int
-     restore_value: true
+        ESP_LOGD("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+            id(my_touchscreen).x,
+            id(my_touchscreen).y,
+            id(my_touchscreen).x_raw,
+            id(my_touchscreen).y_raw
+            );
 
 packages:
+  substitutions: !include packages/substitutions.yaml
+  globals: !include packages/globals.yaml
   wifi: !include packages/wifi.yaml
   number: !include packages/number.yaml
   time: !include packages/time.yaml
@@ -199,3 +172,5 @@ packages:
   switch: !include packages/switch.yaml
   button: !include packages/buttons.yaml
   select: !include packages/select.yaml
+  display: !include packages/display.yaml
+  image: !include packages/image.yaml

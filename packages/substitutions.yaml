@@ -1,0 +1,272 @@
+substitutions:
+
+  screensaver_trigger_time: '10'
+  
+  end_screen_x: '240'
+  end_screen_y: '320'
+  screen_center_x: '120'
+
+  #row_0_y: '0'
+  #row_1_y: '80'
+  #row_2_y: '200'
+  #row_3_y: '280'
+
+  # Centered positions
+  header_y_center: '40'
+  header_x0_center: '40'
+  header_x1_center: $screen_center_x
+  header_x2_center: '200'
+
+  row2_y0_center: '130'
+  row2_y1_center: '230'
+
+  col2_x0_center: '60'
+  col2_x1_center: '180'
+
+  col3_x0_center: '60'
+  col3_x1_center: $screen_center_x
+  col3_x2_center: '180'
+
+  #col4_x0_center: '48'
+  #col4_x1_center: '96'
+  #col4_x2_center: '144'
+  #col4_x3_center: '192'
+
+  footer_y_center: '290'
+  footer_x_center: $screen_center_x
+
+  # Limits positions
+  #row_1_x1: '20'
+  #row_1_x2: '140'
+  #row_2_x1: '20'
+  #row_2_x2: '140'
+
+  header_y_min: '0'
+  header_y_max: '79'
+  header_x0_min: '0'
+  header_x0_max: '79'
+  header_x1_min: '80'
+  header_x1_max: '159'
+  header_x2_min: '160'
+  header_x2_max: '239'
+
+  row2_y0_min: '80'
+  row2_y0_max: '179'
+  row2_y1_min: '180'
+  row2_y1_max: '279'
+
+  col2_x0_min: '0'
+  col2_x0_max: '119'
+  col2_x1_min: '120'
+  col2_x1_max: '239'
+
+  col3_x0_min: '0'
+  col3_x0_max: '79'
+  col3_x1_min: '80'
+  col3_x1_max: '159'
+  col3_x2_min: '160'
+  col3_x2_max: '239'
+
+  #col4_x0_min: '0'
+  #col4_x0_max: '0'
+  #col4_x1_min: '80'
+  #col4_x1_max: '80'
+  #col4_x2_min: '200'
+  #col4_x2_max: '200'
+  #col4_x3_min: '200'
+  #col4_x3_max: '200'
+
+  footer_y_min: '260'
+  footer_y_max: '319'
+  footer_x_min: '70'
+  footer_x_max: '169'
+
+  # Main page
+  thermometer_x: $header_x0_center
+  thermometer_image_y: '30'
+  thermometer_text_y: '70'
+
+  date_offset_x: $header_x1_center
+  time_offset_x: $header_x1_center
+  date_offset_y: '30'
+  time_offset_y: '60'
+  date_time_x_min: $header_x1_min
+  date_time_x_max: $header_x1_max
+  date_time_y_min: $header_y_min
+  date_time_y_max: $header_y_max
+
+  light_sensor_x: $header_x2_center
+  light_sensor_image_y: '30'
+  light_sensor_text_y: '70'
+
+  main_pump_x_center: $col2_x0_center
+  main_pump_y_center: $row2_y0_center
+  main_pump_x_min: $col2_x0_min
+  main_pump_x_max: $col2_x0_max
+  main_pump_y_min: $row2_y0_min
+  main_pump_y_max: $row2_y0_max
+
+  main_light_x_center: $col2_x1_center
+  main_light_y_center: $row2_y0_center
+  main_light_x_min: $col2_x1_min
+  main_light_x_max: $col2_x1_max
+  main_light_y_min: $row2_y0_min
+  main_light_y_max: $row2_y0_max
+
+  main_fish_x_center: $col2_x0_center
+  main_fish_y_center: $row2_y1_center
+  main_fish_x_min: $col2_x0_min
+  main_fish_x_max: $col2_x0_max
+  main_fish_y_min: $row2_y1_min
+  main_fish_y_max: $row2_y1_max
+
+  main_clean_x_center: $col2_x1_center
+  main_clean_y_center: $row2_y1_center
+  main_clean_x_min: $col2_x1_min
+  main_clean_x_max: $col2_x1_max
+  main_clean_y_min: $row2_y1_min
+  main_clean_y_max: $row2_y1_max
+
+  # Sub pages
+  subpage_main_icon_x_min: $header_x1_min
+  subpage_main_icon_x_max: $header_x1_max
+  subpage_main_icon_y_min: $header_y_min
+  subpage_main_icon_y_max: $header_y_max
+  subpage_main_icon_center_x: $header_x1_center
+  subpage_main_icon_center_y: $header_y_center
+
+  back_home_x_min: $footer_x_min
+  back_home_x_max: $footer_x_max
+  back_home_y_min: $footer_y_min
+  back_home_y_max: $footer_y_max
+  back_home_center_x: $footer_x_center
+  back_home_center_y: $footer_y_center
+
+  # Pump page
+  pump_switch_x_center: $col3_x1_center
+  pump_switch_y_center: $row2_y0_center
+  pump_switch_x_min: $col3_x1_min
+  pump_switch_x_max: $col3_x1_max
+  pump_switch_y_min: $row2_y0_min
+  pump_switch_y_max: $row2_y0_max
+
+  pump_txton_x_center: $col3_x0_center
+  pump_txton_y_center: $row2_y0_center
+  pump_txton_x_min: $col3_x0_min
+  pump_txton_x_max: $col3_x0_max
+  pump_txton_y_min: $row2_y0_min
+  pump_txton_y_max: $row2_y0_max
+
+  pump_txtoff_x_center: $col3_x2_center
+  pump_txtoff_y_center: $row2_y0_center
+  pump_txtoff_x_min: $col3_x2_min
+  pump_txtoff_x_max: $col3_x2_max
+  pump_txtoff_y_min: $row2_y0_min
+  pump_txtoff_y_max: $row2_y0_max
+
+  pump_switch_title_x_center: $col3_x1_center
+  pump_switch_title_y_center: '100'
+
+  # light page
+  light_switch_x_center: $col3_x1_center
+  light_switch_y_center: $row2_y0_center
+  light_switch_x_min: $col3_x1_min
+  light_switch_x_max: $col3_x1_max
+  light_switch_y_min: $row2_y0_min
+  light_switch_y_max: $row2_y0_max
+
+  light_txton_x_center: $col3_x0_center
+  light_txton_y_center: $row2_y0_center
+  light_txton_x_min: $col3_x0_min
+  light_txton_x_max: $col3_x0_max
+  light_txton_y_min: $row2_y0_min
+  light_txton_y_max: $row2_y0_max
+
+  light_txtoff_x_center: $col3_x2_center
+  light_txtoff_y_center: $row2_y0_center
+  light_txtoff_x_min: $col3_x2_min
+  light_txtoff_x_max: $col3_x2_max
+  light_txtoff_y_min: $row2_y0_min
+  light_txtoff_y_max: $row2_y0_max
+
+  light_switch_title_x_center: $col3_x1_center
+  light_switch_title_y_center: '100'
+
+  light_switch_auto_x_center: $col3_x1_center
+  light_switch_auto_y_center: $row2_y1_center
+  light_switch_auto_x_min: $col3_x1_min
+  light_switch_auto_x_max: $col3_x1_max
+  light_switch_auto_y_min: $row2_y1_min
+  light_switch_auto_y_max: $row2_y1_max
+
+  light_txton_auto_x_center: $col3_x0_center
+  light_txton_auto_y_center: $row2_y1_center
+  light_txton_auto_x_min: $col3_x0_min
+  light_txton_auto_x_max: $col3_x0_max
+  light_txton_auto_y_min: $row2_y1_min
+  light_txton_auto_y_max: $row2_y1_max
+
+  light_txtoff_auto_x_center: $col3_x2_center
+  light_txtoff_auto_y_center: $row2_y1_center
+  light_txtoff_auto_x_min: $col3_x2_min
+  light_txtoff_auto_x_max: $col3_x2_max
+  light_txtoff_auto_y_min: $row2_y1_min
+  light_txtoff_auto_y_max: $row2_y1_max
+
+  light_switch_auto_title_x_center: $col3_x1_center
+  light_switch_auto_title_y_center: '200'
+
+  # Feed page
+  feed_pos_title_x_center: $col3_x1_center
+  feed_pos_title_y_center: '100'
+
+  feed_pos_x_center: $col3_x1_center
+  feed_pos_y_center: $row2_y0_center
+  feed_pos_x_min: $col3_x1_min
+  feed_pos_x_max: $col3_x1_max
+  feed_pos_y_min: $row2_y0_min
+  feed_pos_y_max: $row2_y0_max
+
+  feed_left_x_center: $col3_x0_center
+  feed_left_y_center: $row2_y0_center
+  feed_left_x_min: $col3_x0_min
+  feed_left_x_max: $col3_x0_max
+  feed_left_y_min: $row2_y0_min
+  feed_left_y_max: $row2_y0_max
+
+  feed_right_x_center: $col3_x2_center
+  feed_right_y_center: $row2_y0_center
+  feed_right_x_min: $col3_x2_min
+  feed_right_x_max: $col3_x2_max
+  feed_right_y_min: $row2_y0_min
+  feed_right_y_max: $row2_y0_max
+
+  # clean page
+  clean_switch_x_center: $col3_x1_center
+  clean_switch_y_center: $row2_y0_center
+  clean_switch_x_min: $col3_x1_min
+  clean_switch_x_max: $col3_x1_max
+  clean_switch_y_min: $row2_y0_min
+  clean_switch_y_max: $row2_y0_max
+
+  clean_txton_x_center: $col3_x0_center
+  clean_txton_y_center: $row2_y0_center
+  clean_txton_x_min: $col3_x0_min
+  clean_txton_x_max: $col3_x0_max
+  clean_txton_y_min: $row2_y0_min
+  clean_txton_y_max: $row2_y0_max
+
+  clean_txtoff_x_center: $col3_x2_center
+  clean_txtoff_y_center: $row2_y0_center
+  clean_txtoff_x_min: $col3_x2_min
+  clean_txtoff_x_max: $col3_x2_max
+  clean_txtoff_y_min: $row2_y0_min
+  clean_txtoff_y_max: $row2_y0_max
+
+  clean_switch_title_x_center: $col3_x1_center
+  clean_switch_title_y_center: '100'
+
+  clean_last_title_x_center: $col3_x1_center
+  clean_last_title_y_center: '200'
+  clean_last_x_center: $col3_x1_center
+  clean_last_y_center: '240'
