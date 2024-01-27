@@ -1,6 +1,6 @@
 substitutions:
 
-  screensaver_trigger_time: '10'
+  screensaver_trigger_time: '30'
   
   end_screen_x: '240'
   end_screen_y: '320'
@@ -214,7 +214,7 @@ substitutions:
   light_txtoff_auto_y_max: $row2_y1_max
 
   light_switch_auto_title_x_center: $col3_x1_center
-  light_switch_auto_title_y_center: '200'
+  light_switch_auto_title_y_center: '180'
 
   # Feed page
   feed_pos_title_x_center: $col3_x1_center
@@ -267,6 +267,6 @@ substitutions:
   clean_switch_title_y_center: '100'
 
   clean_last_title_x_center: $col3_x1_center
-  clean_last_title_y_center: '200'
+  clean_last_title_y_center: '180'
   clean_last_x_center: $col3_x1_center
-  clean_last_y_center: '240'
+  clean_last_y_center: '220'

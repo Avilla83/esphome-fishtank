@@ -135,5 +135,6 @@ display:
       - id: screensaverPage
         lambda: |-
           // Draw the image my_image at position [x=0,y=0]
-          it.image(0, 0, id(img_background));
+          //it.image(0, 0, id(img_screensaver));
+          it.fill(COLOR_OFF);
 
