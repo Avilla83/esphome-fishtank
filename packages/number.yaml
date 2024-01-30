@@ -282,3 +282,21 @@ number:
                         id: fish_feeder_stepper
                         target: !lambda 'return -(68*(int)(x-1));'
                     - lambda: 'id (fishfeeder_last_position) = (int)x;'
+
+  - platform: template
+    name: "Sensore luce minimo"
+    id: sensor_light_min
+    restore_value: true
+    min_value: 0
+    max_value: 200
+    step: 1
+    optimistic: true
+    
+  - platform: template
+    name: "Sensore luce massimo"
+    id: sensor_light_max
+    restore_value: true
+    min_value: 0
+    max_value: 200
+    step: 1
+    optimistic: true
