@@ -8,11 +8,11 @@ globals:
      type: int[4]
      restore_value: true
      
-   - id: lights_timer_slot_value_home
+   - id: lights_timer_slot_value_min
      type: int[4]
      restore_value: true
 
-   - id: lights_timer_slot_value_away
+   - id: lights_timer_slot_value_max
      type: int[4]
      restore_value: true
 
@@ -35,8 +35,28 @@ globals:
 
    - id: clean_time
      type: std::time_t
-     restore_value: false
+     restore_value: true
 
    - id: screensaver_time
      type: std::time_t
+     restore_value: false
+
+   - id: light_percentage
+     type: float
+     initial_value: '0'
+     restore_value: true
+
+   - id: light_sensor_percentage
+     type: float
+     initial_value: '0'
+     restore_value: false
+
+   - id: light_sensor_buffer
+     type: float[10]
+     initial_value: '{0,0,0,0,0,0,0,0,0,0}'
+     restore_value: false
+
+   - id: light_sensor_counter
+     type: char
+     initial_value: '0'
      restore_value: false

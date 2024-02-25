@@ -2,6 +2,9 @@ time:
   - platform: sntp
     id: sntptime
     timezone: 'Europe/Rome'
+    on_time_sync:
+      - lambda: |-
+          id(screensaver_time) = id(sntptime).now().timestamp;
     on_time:
       - seconds: /10
         #minutes: /1
@@ -27,14 +30,34 @@ time:
                   {
                     currentSlot = i + 1;
 
-                    if (true == id(switch_lights_home).state)
+                    if (abs(id(light_percentage) - (1 - id(light_sensor_percentage))) > 10)
                     {
-                      current_slot_value = id(lights_timer_slot_value_home)[currentSlot];
+                      if (id(light_percentage) < (1 - id(light_sensor_percentage)))
+                      {
+                        id(light_percentage) += 10;
+                      }
+                      else
+                      {
+                        id(light_percentage) -= 10;
+                      }                      
                     }
                     else
                     {
-                      current_slot_value = id(lights_timer_slot_value_away)[currentSlot];
+                      id(light_percentage) = (1 - id(light_sensor_percentage));
                     }
+
+                    current_slot_value = id(lights_timer_slot_value_min)[currentSlot] + ((id(lights_timer_slot_value_max)[currentSlot] - id(lights_timer_slot_value_min)[currentSlot]) * id(light_percentage));
+                    
+                    ESP_LOGD("timer", "light_percentage %f, light_sensor_percentage %f, current_slot_value %f", id(light_percentage), id(light_sensor_percentage), current_slot_value);
+
+                    //if (true == id(switch_lights_home).state)
+                    //{
+                    // current_slot_value = id(lights_timer_slot_value_home)[currentSlot];
+                    //}
+                    //else
+                    //{
+                    //  current_slot_value = id(lights_timer_slot_value_away)[currentSlot];
+                    //}
 
                     break;
                   }
@@ -78,10 +101,10 @@ time:
 
               ESP_LOGD("timer", "Current time: %d:%d value %d", currentHour, currentMinute, current_slot_value);
               //ESP_LOGD("timer", "Slot 0 %d:%d h %d a %d, Slot 1 %d:%d h %d a %d, Slot 2 %d:%d h %d a %d, Slot 3 %d:%d h %d a %d", 
-              //id(lights_timer_slot_hour)[3], id(lights_timer_slot_minute)[3], id(lights_timer_slot_value_home)[0], id(lights_timer_slot_value_away)[0],
-              //id(lights_timer_slot_hour)[0], id(lights_timer_slot_minute)[0], id(lights_timer_slot_value_home)[1], id(lights_timer_slot_value_away)[1],
-              //id(lights_timer_slot_hour)[1], id(lights_timer_slot_minute)[1], id(lights_timer_slot_value_home)[2], id(lights_timer_slot_value_away)[2],
-              //id(lights_timer_slot_hour)[2], id(lights_timer_slot_minute)[2], id(lights_timer_slot_value_home)[3], id(lights_timer_slot_value_away)[3]);
+              //id(lights_timer_slot_hour)[3], id(lights_timer_slot_minute)[3], id(lights_timer_slot_value_min)[0], id(lights_timer_slot_value_max)[0],
+              //id(lights_timer_slot_hour)[0], id(lights_timer_slot_minute)[0], id(lights_timer_slot_value_min)[1], id(lights_timer_slot_value_max)[1],
+              //id(lights_timer_slot_hour)[1], id(lights_timer_slot_minute)[1], id(lights_timer_slot_value_min)[2], id(lights_timer_slot_value_max)[2],
+              //id(lights_timer_slot_hour)[2], id(lights_timer_slot_minute)[2], id(lights_timer_slot_value_min)[3], id(lights_timer_slot_value_max)[3]);
 
               for (int day = 0; day < 31; day++)
               {

@@ -97,7 +97,7 @@ number:
                 id(lights_timer_slot_minute)[3] = (int)(x);
 
   - platform: template
-    name: "Luci a casa Valore Slot 0"
+    name: "Luci Slot 0 Min"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -106,10 +106,10 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_home)[0] = (int)(x);
+                id(lights_timer_slot_value_min)[0] = (int)(x);
 
   - platform: template
-    name: "Luci a casa Valore Slot 1"
+    name: "Luci Slot 1 Min"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -118,10 +118,10 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_home)[1] = (int)(x);
+                id(lights_timer_slot_value_min)[1] = (int)(x);
 
   - platform: template
-    name: "Luci a casa Valore Slot 2"
+    name: "Luci Slot 2 Min"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -130,10 +130,10 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_home)[2] = (int)(x);
+                id(lights_timer_slot_value_min)[2] = (int)(x);
 
   - platform: template
-    name: "Luci a casa Valore Slot 3"
+    name: "Luci Slot 3 Min"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -142,10 +142,10 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_home)[3] = (int)(x);
+                id(lights_timer_slot_value_min)[3] = (int)(x);
 
   - platform: template
-    name: "Luci fuori casa Valore Slot 0"
+    name: "Luci Slot 0 Max"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -154,10 +154,10 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_away)[0] = (int)(x);
+                id(lights_timer_slot_value_max)[0] = (int)(x);
 
   - platform: template
-    name: "Luci fuori casa Valore Slot 1"
+    name: "Luci Slot 1 Max"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -166,10 +166,10 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_away)[1] = (int)(x);
+                id(lights_timer_slot_value_max)[1] = (int)(x);
 
   - platform: template
-    name: "Luci fuori casa Valore Slot 2"
+    name: "Luci Slot 2 Max"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -178,10 +178,10 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_away)[2] = (int)(x);
+                id(lights_timer_slot_value_max)[2] = (int)(x);
 
   - platform: template
-    name: "Luci fuori casa Valore Slot 3"
+    name: "Luci Slot 3 Max"
     optimistic: true
     restore_value: true
     min_value: 0
@@ -190,7 +190,7 @@ number:
     on_value:
         then:
             lambda: |-
-                id(lights_timer_slot_value_away)[3] = (int)(x);
+                id(lights_timer_slot_value_max)[3] = (int)(x);
 
   - platform: template
     name: "Feeder Slot 1 Ore"
@@ -291,6 +291,7 @@ number:
     max_value: 200
     step: 1
     optimistic: true
+    initial_value: '0'
     
   - platform: template
     name: "Sensore luce massimo"
@@ -300,3 +301,4 @@ number:
     max_value: 200
     step: 1
     optimistic: true
+    initial_value: '0'

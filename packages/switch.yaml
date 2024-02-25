@@ -3,7 +3,7 @@ switch:
     name: "Pompa Acqua"
     id: switch_pump
     icon: "mdi:water-pump"
-    pin: GPIO14
+    pin: GPIO13
     inverted: true
     restore_mode: RESTORE_DEFAULT_ON
     
@@ -11,7 +11,7 @@ switch:
     name: "Luci Relè"
     id: switch_lights
     icon: "mdi:lightbulb-outline"
-    pin: GPIO13
+    pin: GPIO14
     inverted: true
     restore_mode: RESTORE_DEFAULT_ON
 
@@ -22,12 +22,12 @@ switch:
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
 
-  - platform: template
-    name: "Luci a casa-fuori casa"
-    id: switch_lights_home
-    icon: "mdi:lightbulb-outline"
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
+  #- platform: template
+  #  name: "Luci a casa-fuori casa"
+  #  id: switch_lights_home
+  #  icon: "mdi:lightbulb-outline"
+  #  optimistic: true
+  #  restore_mode: RESTORE_DEFAULT_ON
 
   - platform: template
     name: "Pulizia acquario"

@@ -43,22 +43,53 @@ sensor:
     device_class: illuminance
     unit_of_measurement: lx
     accuracy_decimals: 6
-    update_interval: 10s
+    update_interval: 1s
     filters:
       - lambda: |-
-          return (x / 10000.0) * 2000000.0;
+          float lux = (x / 10000.0) * 2000000.0;
 
-  - platform: template
-    name: "Percentuale di luce esterna"
-    id: light_sensor_percentage
-    lambda: |-
-      if (id(light_sensor).state < id(sensor_light_min).state) {
-        return 0;
-      } else if (id(light_sensor).state > id(sensor_light_max).state) {
-        return 1;
-      } else if (id(sensor_light_max).state > id(sensor_light_min).state)){
-        return (id(light_sensor).state - id(sensor_light_min).state) / (id(sensor_light_max).state - id(sensor_light_min).state);
-      }
+          /*if(id(light_sensor_counter) >= 10)
+          {
+            id(light_sensor_counter) = 0;
+          }
+          id(light_sensor_counter)++;
+
+          id(light_sensor_buffer)[id(light_sensor_counter)] = lux;
+          
+          float average_lux = 0;
+
+          for (int i = 0; i < 10; i++)
+          {
+            average_lux += id(light_sensor_buffer)[i];
+          }
+          average_lux -= *std::max_element(id(light_sensor_buffer), id(light_sensor_buffer) + 10);
+          average_lux -= *std::min_element(id(light_sensor_buffer), id(light_sensor_buffer) + 10);
+
+          average_lux = average_lux / 8;
+
+          if (average_lux < id(sensor_light_min).state) {
+            id(light_sensor_percentage) = 0;
+          } else if (average_lux > id(sensor_light_max).state) {
+            id(light_sensor_percentage) =  1;
+          } else if (id(sensor_light_max).state > average_lux){
+            id(light_sensor_percentage) = (average_lux - id(sensor_light_min).state) / (id(sensor_light_max).state - id(sensor_light_min).state);
+            ESP_LOGD("timer", "light_sensor_percentage %f, sensor_light_min %f, sensor_light_max %f", id(light_sensor_percentage), id(sensor_light_min).state, id(sensor_light_max).state);
+          }*/
+
+          return lux;
+
+  #- platform: template
+  #  name: "Percentuale di luce esterna"
+  #  id: light_sensor_percentage
+  #  update_interval: 10s
+  #  lambda: |-
+  #    if (id(light_sensor).state < id(sensor_light_min).state) {
+  #      return 0;
+  #    } else if (id(light_sensor).state > id(sensor_light_max).state) {
+  #      return 1;
+  #    } else if (id(sensor_light_max).state > id(sensor_light_min).state){
+  #      return (id(light_sensor).state - id(sensor_light_min).state) / (id(sensor_light_max).state - id(sensor_light_min).state);
+  #    }
 
 
 light:
@@ -113,16 +144,16 @@ font:
 
 color:
   - id: color_icon
-    red: 0%
-    green: 0%
-    blue: 0%
-    white: 0%
+    red: 100%
+    green: 100%
+    blue: 100%
+    white: 100%
 
   - id: color_text
-    red: 0%
-    green: 0%
-    blue: 0%
-    white: 0%
+    red: 100%
+    green: 100%
+    blue: 100%
+    white: 100%
 
 #animation:
 #  - file: "images/tiny.gif"
@@ -168,13 +199,13 @@ touchscreen:
     - lambda: |-
         id(screensaver_time) = id(sntptime).now().timestamp;
 
-        ESP_LOGD("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-            id(my_touchscreen).x,
-            id(my_touchscreen).y,
-            id(my_touchscreen).x_raw,
-            id(my_touchscreen).y_raw
+        ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+            touch.x,
+            touch.y,
+            touch.x_raw,
+            touch.y_raw
             );
-
+              
 packages:
   substitutions: !include packages/substitutions.yaml
   globals: !include packages/globals.yaml

@@ -1,5 +1,5 @@
 image:
-  - file: "images/background_vertical.png"
+  - file: "images/background_vertical_dark.png"
     id: img_background
     resize: 240x320
     type: rgb24
