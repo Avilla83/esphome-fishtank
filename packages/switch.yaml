@@ -20,7 +20,6 @@ switch:
     id: switch_lights_auto
     icon: "mdi:lightbulb-outline"
     optimistic: true
-    restore_state: true
     restore_mode: RESTORE_DEFAULT_ON
 
   - platform: template
@@ -28,5 +27,4 @@ switch:
     id: switch_lights_home
     icon: "mdi:lightbulb-outline"
     optimistic: true
-    restore_state: true
     restore_mode: RESTORE_DEFAULT_ON
