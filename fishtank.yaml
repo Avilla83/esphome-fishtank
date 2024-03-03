@@ -43,12 +43,12 @@ sensor:
     device_class: illuminance
     unit_of_measurement: lx
     accuracy_decimals: 6
-    update_interval: 1s
+    update_interval: 5s
     filters:
       - lambda: |-
           float lux = (x / 10000.0) * 2000000.0;
 
-          /*if(id(light_sensor_counter) >= 10)
+          if(id(light_sensor_counter) >= 10)
           {
             id(light_sensor_counter) = 0;
           }
@@ -62,10 +62,10 @@ sensor:
           {
             average_lux += id(light_sensor_buffer)[i];
           }
-          average_lux -= *std::max_element(id(light_sensor_buffer), id(light_sensor_buffer) + 10);
-          average_lux -= *std::min_element(id(light_sensor_buffer), id(light_sensor_buffer) + 10);
+          //average_lux -= *std::max_element(id(light_sensor_buffer), id(light_sensor_buffer) + 10);
+          //average_lux -= *std::min_element(id(light_sensor_buffer), id(light_sensor_buffer) + 10);
 
-          average_lux = average_lux / 8;
+          average_lux = average_lux / 10;
 
           if (average_lux < id(sensor_light_min).state) {
             id(light_sensor_percentage) = 0;
@@ -73,10 +73,10 @@ sensor:
             id(light_sensor_percentage) =  1;
           } else if (id(sensor_light_max).state > average_lux){
             id(light_sensor_percentage) = (average_lux - id(sensor_light_min).state) / (id(sensor_light_max).state - id(sensor_light_min).state);
-            ESP_LOGD("timer", "light_sensor_percentage %f, sensor_light_min %f, sensor_light_max %f", id(light_sensor_percentage), id(sensor_light_min).state, id(sensor_light_max).state);
-          }*/
+            //ESP_LOGD("timer", "light_sensor_percentage %f, sensor_light_min %f, sensor_light_max %f", id(light_sensor_percentage), id(sensor_light_min).state, id(sensor_light_max).state);
+          }
 
-          return lux;
+          return average_lux;
 
   #- platform: template
   #  name: "Percentuale di luce esterna"
@@ -102,11 +102,11 @@ light:
     on_turn_off:
       - switch.turn_off: switch_lights
 
-  - platform: monochromatic
-    output: gpio_4_backlight_pwm
-    name: "Display Backlight"
-    id: back_light
-    restore_mode: ALWAYS_ON
+  #- platform: monochromatic
+  #  output: gpio_4_backlight_pwm
+  #  name: "Display Backlight"
+  #  id: back_light
+  #  restore_mode: ALWAYS_ON
 
 stepper:
   - platform: uln2003
@@ -125,22 +125,22 @@ output:
     frequency: 5000 Hz
     max_power: 100%
 
-  - platform: ledc
-    pin: GPIO4
-    id: gpio_4_backlight_pwm
+  #- platform: ledc
+  #  pin: GPIO4
+  #  id: gpio_4_backlight_pwm
 
 spi:
   clk_pin: GPIO18
   mosi_pin: GPIO23
   miso_pin: GPIO19
 
-font:
-  - file:
-      type: gfonts
-      family: Roboto
-      weight: bold
-    id: roboto_16
-    size: 18
+#font:
+#  - file:
+#      type: gfonts
+#      family: Roboto
+#      weight: bold
+#    id: roboto_16
+#    size: 18
 
 color:
   - id: color_icon
@@ -161,60 +161,37 @@ color:
 #    resize: 80x80
 #    type: rgb565
 
-interval:
-  - interval: 500ms
-    then:
-    - lambda: |-
-        if (id(screensaver_time) != 0)
-        {
-          std::time_t now = id(sntptime).now().timestamp;
-          double time_diff = std::difftime(now, id(screensaver_time));
-          
-          // Check if it is time to activate the screensaver
-          if (time_diff > $screensaver_trigger_time)
-          {
-            id(screensaver_time) = 0;
-            id(my_display).show_page(id(screensaverPage));
-          }
-        }
+#interval:
+#  - interval: 500ms
+#    then:
+#    - lambda: |-
+#        if (id(screensaver_time) != 0)
+#        {
+#          std::time_t now = id(sntptime).now().timestamp;
+#          double time_diff = std::difftime(now, id(screensaver_time));
+#          
+#          // Check if it is time to activate the screensaver
+#          if (time_diff > $screensaver_trigger_time)
+#          {
+#            id(screensaver_time) = 0;
+#            id(my_display).show_page(id(screensaverPage));
+#          }
+#        }
 
   #- interval: 1s
   #  then:
   #    animation.next_frame: img_screensaver
-
-touchscreen:
-  - platform: xpt2046
-    id: my_touchscreen
-    cs_pin: GPIO21
-    interrupt_pin: GPIO22
-    update_interval: 50ms
-    threshold: 400
-    calibration_x_min: 240
-    calibration_x_max: 3780
-    calibration_y_min: 3950
-    calibration_y_max: 310
-    transform:
-      swap_xy: false
-    on_touch:
-    - lambda: |-
-        id(screensaver_time) = id(sntptime).now().timestamp;
-
-        ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
-            touch.x,
-            touch.y,
-            touch.x_raw,
-            touch.y_raw
-            );
-              
+            
 packages:
   substitutions: !include packages/substitutions.yaml
   globals: !include packages/globals.yaml
   wifi: !include packages/wifi.yaml
   number: !include packages/number.yaml
   time: !include packages/time.yaml
-  binary_sensor: !include packages/binary_sensor.yaml
   switch: !include packages/switch.yaml
   button: !include packages/buttons.yaml
   select: !include packages/select.yaml
-  display: !include packages/display.yaml
-  image: !include packages/image.yaml
+  #display: !include packages/display.yaml
+  #image: !include packages/image.yaml
+  #touchscreen: !include packages/touchscreen.yaml
+  #binary_sensor: !include packages/binary_sensor.yaml
