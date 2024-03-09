@@ -63,15 +63,24 @@ time:
                   }
               }
 
+              if ((current_slot_value > 0) &&
+                  (0 == id(lights).current_values.is_on()))
+              {
+                float brightness = (float)current_slot_value/100;
+
+                auto lightsCall = id(lights).make_call();
+                lightsCall.set_brightness(brightness);
+                lightsCall.set_state(true);
+
+                lightsCall.perform();
+
+                //id(lights).turn_on().perform();
+                ESP_LOGD("timer", "Turning lights on, brightness %f", brightness);
+              }
+
               if (true == id(switch_lights_auto).state)
               {
-                if ((current_slot_value > 0) &&
-                    (0 == id(lights).current_values.is_on()))
-                {
-                  id(lights).turn_on().perform();
-                  ESP_LOGD("timer", "Turning lights on");
-                }
-
+                
                 float brightness = (float)current_slot_value/100;
 
                 if ((brightness != id(lights).remote_values.get_brightness()) &&
@@ -86,7 +95,7 @@ time:
                   //id(lights).current_values_as_brightness(&brightness);
                   //id(lights).publish_state();
                 }
-
+                
                 if ((current_slot_value == 0) &&
                     (1 == id(lights).current_values.is_on()))
                 {

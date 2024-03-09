@@ -291,7 +291,6 @@ number:
     max_value: 200
     step: 1
     optimistic: true
-    initial_value: '0'
     
   - platform: template
     name: "Sensore luce massimo"
@@ -301,4 +300,3 @@ number:
     max_value: 200
     step: 1
     optimistic: true
-    initial_value: '0'
